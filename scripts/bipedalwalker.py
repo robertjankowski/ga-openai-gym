@@ -165,8 +165,8 @@ if __name__ == '__main__':
     env = gym.make('BipedalWalker-v2')
     env.seed(123)
 
-    POPULATION_SIZE = 100
-    MAX_GENERATION = 3
+    POPULATION_SIZE = 1000
+    MAX_GENERATION = 1000
 
     date = datetime.now().strftime('%m-%d-%Y_%H-%M-%S')
     path = '{}_POPSIZE={}_GEN={}_MUTATION_{}'.format(date, POPULATION_SIZE,

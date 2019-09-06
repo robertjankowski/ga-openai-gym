@@ -5,5 +5,5 @@
 Run on **Spell**
 
 ```shell script
-spell run "python bipedalwalker.py" --pip-req requirements.txt
+spell run "python scripts/bipedalwalker.py" --pip-req requirements.txt
 ```
