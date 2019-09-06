@@ -181,5 +181,8 @@ if __name__ == '__main__':
     best_model = sorted(new_population, key=lambda individual: individual.fitness, reverse=True)[0]
 
     date = datetime.now().strftime('%m-%d-%Y_%H-%M-%S')
-    torch.save(best_model.model, '../models/bipedalwalker/{}.pt'.format(date))
+    torch.save(best_model.model,
+               '../models/bipedalwalker/{}_POPSIZE={}_GEN={}_MUTATION_{}.pt'.format(date, POPULATION_SIZE,
+                                                                                    MAX_GENERATION,
+                                                                                    0.6))
     env.close()
