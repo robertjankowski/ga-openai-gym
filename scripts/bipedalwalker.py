@@ -9,27 +9,13 @@ import torch
 import torch.distributions as tdist
 
 
-# Episode Termination
-#  1. Pole Angle is more than ±12°
-#  2. Cart Position is more than ±2.4 (center of the cart reaches the edge of the display)
-#  3. Episode length is greater than 200
-
-# Reward is 1 for every step taken, including the termination step
-
-# Observation - Box(4,)
-# 0 -> Cart Position        < -2.4, 2.4 >
-# 1 -> Cart Velocity        < -Inf, Inf >
-# 2 -> Pole Angle           < ~ -41.8°, ~ 41.8° >
-# 3 -> Pole Velocity at Tip < -Inf, Inf >
-
-
 class Individual:
     def __init__(self, model=None):
         if model is not None:
             self.model = model
         else:
             # H - size of hidden layer
-            D_in, H, D_out = 4, 2, 1
+            D_in, H, D_out = 24, 16, 4
             self.model = create_model(D_in, H, D_out)
         self.fitness = 0.0
         self.weights_biases = None
@@ -51,7 +37,7 @@ def create_model(d_in, h, d_out):
     )
 
 
-def run_single(model, n_episodes=2000, render=False) -> Tuple[int, Any]:
+def run_single(model, n_episodes=1000, render=False) -> Tuple[int, Any]:
     """
     Calculate fitness function for given model
 
@@ -67,8 +53,8 @@ def run_single(model, n_episodes=2000, render=False) -> Tuple[int, Any]:
             env.render()
         obs = torch.from_numpy(obs).float()
         action = model(obs)
-        action = action.detach().numpy().item()
-        obs, reward, done, _ = env.step(round(action))
+        action = action.detach().numpy()
+        obs, reward, done, _ = env.step(action)
         fitness += reward
         if done:
             break
@@ -120,7 +106,7 @@ def crossover(parent1_weights_biases, parent2_weights_biases):
     return child1_weights_biases, child2_weights_biases
 
 
-def mutation(parent_weights_biases, p=0.6):
+def mutation(parent_weights_biases, p=0.7):
     """
     Mutate parent using normal distribution
 
@@ -130,8 +116,7 @@ def mutation(parent_weights_biases, p=0.6):
     child_weight_biases = parent_weights_biases.clone()
     if np.random.rand() < p:
         position = np.random.randint(0, parent_weights_biases.shape[0])
-        n = tdist.Normal(child_weight_biases.mean(), child_weight_biases.std())
-        child_weight_biases[position] = n.sample((1,)) + np.random.randint(-20, 20)
+        child_weight_biases[position] = np.random.randint(-20, 20)
     return child_weight_biases
 
 
@@ -143,12 +128,7 @@ def statistics(population: List[Individual]) -> Tuple[float, float, float]:
     return mean, min, max
 
 
-def selection(population) -> Tuple[Individual, Individual]:
-    """
-    Simple elitism selection
-    :param population:
-    :return: Two best parents (with the highest fitness score)
-    """
+def selection(population) -> int:
     sorted_population = sorted(population, key=lambda individual: individual.fitness, reverse=True)
     parent1, parent2 = sorted_population[0], sorted_population[1]
     return parent1, parent2
@@ -157,9 +137,11 @@ def selection(population) -> Tuple[Individual, Individual]:
 def generation(old_population, new_population) -> List[Individual]:
     for i in range(0, len(old_population) - 1, 2):
         parent1, parent2 = selection(old_population)
+
         # Crossover
         child1 = copy.deepcopy(parent1)
         child2 = copy.deepcopy(parent2)
+
         child1.weights_biases, child2.weights_biases = crossover(parent1.weights_biases, parent2.weights_biases)
 
         # Mutation
@@ -174,22 +156,16 @@ def generation(old_population, new_population) -> List[Individual]:
         child2.calculate_fitness()
 
         # If children fitness is greater thant parents update population
-        # if child1.fitness + child2.fitness > parent1.fitness + parent2.fitness:
-        #     new_population[i] = child1
-        #     new_population[i + 1] = child2
-        # else:
-        #     new_population[i] = parent1
-        #     new_population[i + 1] = parent2
         new_population[i] = child1
         new_population[i + 1] = child2
 
 
 if __name__ == '__main__':
-    env = gym.make('CartPole-v1')
+    env = gym.make('BipedalWalker-v2')
     env.seed(123)
 
     POPULATION_SIZE = 100
-    MAX_GENERATION = 20
+    MAX_GENERATION = 200
 
     old_population = [Individual() for _ in range(POPULATION_SIZE)]
     new_population = [None] * POPULATION_SIZE
@@ -199,16 +175,11 @@ if __name__ == '__main__':
         generation(old_population, new_population)
 
         mean, min, max = statistics(new_population)
-        _, _, max_old = statistics(old_population)
-        if max >= max_old:
-            old_population = copy.deepcopy(new_population)
+        old_population = copy.deepcopy(new_population)
         print(f"Mean: {mean}\tmin: {min}\tmax: {max}")
 
     best_model = sorted(new_population, key=lambda individual: individual.fitness, reverse=True)[0]
 
     date = datetime.now().strftime('%m-%d-%Y_%H-%M-%S')
-    torch.save(best_model.model,
-               '../models/cartpole/{}_POPSIZE={}_GEN={}_MUTATION_{}.pt'.format(date, POPULATION_SIZE, MAX_GENERATION,
-                                                                               0.6))
-
+    torch.save(best_model.model, '../models/bipedalwalker/{}.pt'.format(date))
     env.close()
