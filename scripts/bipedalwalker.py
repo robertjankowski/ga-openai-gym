@@ -106,7 +106,7 @@ def crossover(parent1_weights_biases, parent2_weights_biases):
     return child1_weights_biases, child2_weights_biases
 
 
-def mutation(parent_weights_biases, p=0.7):
+def mutation(parent_weights_biases, p=0.6):
     """
     Mutate parent using normal distribution
 
@@ -116,7 +116,8 @@ def mutation(parent_weights_biases, p=0.7):
     child_weight_biases = parent_weights_biases.clone()
     if np.random.rand() < p:
         position = np.random.randint(0, parent_weights_biases.shape[0])
-        child_weight_biases[position] = np.random.randint(-20, 20)
+        n = tdist.Normal(child_weight_biases.mean(), child_weight_biases.std())
+        child_weight_biases[position] = 5 * n.sample() + np.random.randint(-20, 20)
     return child_weight_biases
 
 
@@ -165,7 +166,12 @@ if __name__ == '__main__':
     env.seed(123)
 
     POPULATION_SIZE = 100
-    MAX_GENERATION = 200
+    MAX_GENERATION = 3
+
+    date = datetime.now().strftime('%m-%d-%Y_%H-%M-%S')
+    path = '{}_POPSIZE={}_GEN={}_MUTATION_{}'.format(date, POPULATION_SIZE,
+                                                     MAX_GENERATION,
+                                                     0.6)
 
     old_population = [Individual() for _ in range(POPULATION_SIZE)]
     new_population = [None] * POPULATION_SIZE
@@ -176,13 +182,14 @@ if __name__ == '__main__':
 
         mean, min, max = statistics(new_population)
         old_population = copy.deepcopy(new_population)
-        print(f"Mean: {mean}\tmin: {min}\tmax: {max}")
+        stats = f"Mean: {mean}\tmin: {min}\tmax: {max}\n"
+        with open(path + '.log', "a") as f:
+            f.write(stats)
+        print(stats)
 
     best_model = sorted(new_population, key=lambda individual: individual.fitness, reverse=True)[0]
 
-    date = datetime.now().strftime('%m-%d-%Y_%H-%M-%S')
-    torch.save(best_model.model,
-               '../models/bipedalwalker/{}_POPSIZE={}_GEN={}_MUTATION_{}.pt'.format(date, POPULATION_SIZE,
-                                                                                    MAX_GENERATION,
-                                                                                    0.6))
+    model_path = '../models/bipedalwalker/' + path
+    torch.save(best_model.model, path + '.pt')
+
     env.close()

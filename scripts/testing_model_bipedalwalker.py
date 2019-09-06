@@ -14,7 +14,6 @@ if __name__ == '__main__':
         action = model(observation)
         action = action.detach().numpy()
         observation, reward, done, info = env.step(action)
-        print(f"Reward: {reward}")
         if done:
             break
     env.close()
