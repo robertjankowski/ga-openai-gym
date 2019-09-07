@@ -1,12 +1,14 @@
-from collections import OrderedDict
-from typing import Tuple, Any, List
-from datetime import datetime
-
 import copy
+from collections import OrderedDict
+from datetime import datetime
+from typing import Tuple, List
+
 import gym
 import numpy as np
 import torch
 import torch.distributions as tdist
+
+from util.timing import timing
 
 
 class Individual:
@@ -20,8 +22,8 @@ class Individual:
         self.fitness = 0.0
         self.weights_biases = None
 
-    def calculate_fitness(self) -> None:
-        self.fitness, self.weights_biases = run_single(self.model)
+    def calculate_fitness(self, env) -> None:
+        self.fitness, self.weights_biases = run_single(env, self.model)
 
     def update_model(self):
         # Update model weights and biases
@@ -37,10 +39,11 @@ def create_model(d_in, h, d_out):
     )
 
 
-def run_single(model, n_episodes=1000, render=False) -> Tuple[int, Any]:
+def run_single(env, model, n_episodes=1000, render=False) -> Tuple[int, torch.Tensor]:
     """
     Calculate fitness function for given model
 
+    :param env:
     :param model:
     :param n_episodes:
     :param render:
@@ -129,13 +132,13 @@ def statistics(population: List[Individual]) -> Tuple[float, float, float]:
     return mean, min, max
 
 
-def selection(population) -> int:
+def selection(population) -> Tuple[Individual, Individual]:
     sorted_population = sorted(population, key=lambda individual: individual.fitness, reverse=True)
     parent1, parent2 = sorted_population[0], sorted_population[1]
     return parent1, parent2
 
 
-def generation(old_population, new_population) -> List[Individual]:
+def generation(env, old_population, new_population, p_mutation) -> List[Individual]:
     for i in range(0, len(old_population) - 1, 2):
         parent1, parent2 = selection(old_population)
 
@@ -146,19 +149,47 @@ def generation(old_population, new_population) -> List[Individual]:
         child1.weights_biases, child2.weights_biases = crossover(parent1.weights_biases, parent2.weights_biases)
 
         # Mutation
-        child1.weights_biases = mutation(child1.weights_biases)
-        child2.weights_biases = mutation(child2.weights_biases)
+        child1.weights_biases = mutation(child1.weights_biases, p_mutation)
+        child2.weights_biases = mutation(child2.weights_biases, p_mutation)
 
         # Update model weights and biases
         child1.update_model()
         child2.update_model()
 
-        child1.calculate_fitness()
-        child2.calculate_fitness()
+        child1.calculate_fitness(env)
+        child2.calculate_fitness(env)
 
         # If children fitness is greater thant parents update population
         new_population[i] = child1
         new_population[i + 1] = child2
+
+
+@timing
+def main(env, pop_size, max_generation, p_mutation, log=False):
+    date = datetime.now().strftime('%m-%d-%Y_%H-%M-%S')
+    path = '{}_POPSIZE={}_GEN={}_MUTATION_{}'.format(date, pop_size,
+                                                     max_generation,
+                                                     p_mutation)
+
+    old_population = [Individual() for _ in range(pop_size)]
+    new_population = [None] * pop_size
+
+    for _ in range(max_generation):
+        [p.calculate_fitness(env) for p in old_population]
+        generation(env, old_population, new_population, p_mutation)
+
+        mean, min, max = statistics(new_population)
+        old_population = copy.deepcopy(new_population)
+        stats = f"Mean: {mean}\tmin: {min}\tmax: {max}\n"
+        if log:
+            with open(path + '.log', "a") as f:
+                f.write(stats)
+        print(stats)
+
+    best_model = sorted(new_population, key=lambda individual: individual.fitness, reverse=True)[0]
+
+    model_path = '../models/bipedalwalker/' + path
+    torch.save(best_model.model, model_path + path + '.pt')
 
 
 if __name__ == '__main__':
@@ -166,30 +197,9 @@ if __name__ == '__main__':
     env.seed(123)
 
     POPULATION_SIZE = 100
-    MAX_GENERATION = 3
+    MAX_GENERATION = 5
+    MUTATION_RATE = 0.6
 
-    date = datetime.now().strftime('%m-%d-%Y_%H-%M-%S')
-    path = '{}_POPSIZE={}_GEN={}_MUTATION_{}'.format(date, POPULATION_SIZE,
-                                                     MAX_GENERATION,
-                                                     0.6)
-
-    old_population = [Individual() for _ in range(POPULATION_SIZE)]
-    new_population = [None] * POPULATION_SIZE
-
-    for _ in range(MAX_GENERATION):
-        [p.calculate_fitness() for p in old_population]
-        generation(old_population, new_population)
-
-        mean, min, max = statistics(new_population)
-        old_population = copy.deepcopy(new_population)
-        stats = f"Mean: {mean}\tmin: {min}\tmax: {max}\n"
-        with open(path + '.log', "a") as f:
-            f.write(stats)
-        print(stats)
-
-    best_model = sorted(new_population, key=lambda individual: individual.fitness, reverse=True)[0]
-
-    model_path = '../models/bipedalwalker/' + path
-    torch.save(best_model.model, path + '.pt')
+    main(env, POPULATION_SIZE, MAX_GENERATION, MUTATION_RATE)
 
     env.close()
