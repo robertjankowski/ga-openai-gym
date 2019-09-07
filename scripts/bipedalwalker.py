@@ -1,45 +1,29 @@
 import copy
-from collections import OrderedDict
 from datetime import datetime
 from typing import Tuple, List
 
 import gym
 import numpy as np
-import torch
-import torch.distributions as tdist
 
 from util.timing import timing
+from nn.neural_network import NeuralNetwork
 
 
 class Individual:
-    def __init__(self, model=None):
-        if model is not None:
-            self.model = model
-        else:
-            # H - size of hidden layer
-            D_in, H, D_out = 24, 16, 4
-            self.model = create_model(D_in, H, D_out)
+    def __init__(self):
+        D_in, H, D_out = 24, 16, 4
+        self.nn = NeuralNetwork(D_in, H, D_out)
         self.fitness = 0.0
-        self.weights_biases = None
+        self.weights_biases = self.nn.get_weights_biases()
 
     def calculate_fitness(self, env) -> None:
-        self.fitness, self.weights_biases = run_single(env, self.model)
+        self.fitness, self.weights_biases = run_single(env, self.nn)
 
-    def update_model(self):
-        # Update model weights and biases
-        self.model.load_state_dict(from_parameters_list_to_order_dict(self.model.state_dict(), self.weights_biases))
-
-
-def create_model(d_in, h, d_out):
-    return torch.nn.Sequential(
-        torch.nn.Linear(d_in, h),
-        torch.nn.ReLU(),
-        torch.nn.Linear(h, d_out),
-        torch.nn.Sigmoid()
-    )
+    def update_model(self) -> None:
+        self.nn.update_weights_biases(self.weights_biases)
 
 
-def run_single(env, model, n_episodes=1000, render=False) -> Tuple[int, torch.Tensor]:
+def run_single(env, model, n_episodes=1000, render=False) -> Tuple[int, np.array]:
     """
     Calculate fitness function for given model
 
@@ -47,65 +31,28 @@ def run_single(env, model, n_episodes=1000, render=False) -> Tuple[int, torch.Te
     :param model:
     :param n_episodes:
     :param render:
-    :return: fitness, models parameters (weights and biases) as list
+    :return: fitness
     """
     obs = env.reset()
     fitness = 0
     for _ in range(n_episodes):
         if render:
             env.render()
-        obs = torch.from_numpy(obs).float()
-        action = model(obs)
-        action = action.detach().numpy()
+        action = model.forward(obs)
         obs, reward, done, _ = env.step(action)
         fitness += reward
         if done:
             break
-    weight_biases = parameters_list_from_state_dict(model)
-    return fitness, weight_biases
-
-
-def parameters_list_from_state_dict(model) -> torch.Tensor:
-    """
-    Get model parameters (weights and biases) and concatenate them
-
-    :param model
-    :return: tensor with all weights and biases
-    """
-    parameters = model.state_dict().values()
-    parameters = [x.flatten() for x in parameters]
-    parameters = torch.cat(parameters, 0)
-    return parameters
-
-
-def from_parameters_list_to_order_dict(model_dict, model_parameters) -> OrderedDict:
-    """
-    Transform list of model parameters to state dict
-
-    :param model_dict: OrderedDict, model schema
-    :param model_parameters: List of model parameters
-    :return:
-    """
-    shapes = [x.shape for x in model_dict.values()]
-    shapes_prod = [torch.tensor(s).numpy().prod() for s in shapes]
-
-    partial_split = model_parameters.split(shapes_prod)
-    model_values = []
-    for i in range(len(shapes)):
-        model_values.append(partial_split[i].view(shapes[i]))
-
-    state_dict = OrderedDict((key, value) for (key, value) in zip(model_dict.keys(), model_values))
-    return state_dict
+    return fitness, model.get_weights_biases()
 
 
 def crossover(parent1_weights_biases, parent2_weights_biases):
     position = np.random.randint(0, parent1_weights_biases.shape[0])
-    child1_weights_biases = parent1_weights_biases.clone()
-    child2_weights_biases = parent2_weights_biases.clone()
+    child1_weights_biases = np.copy(parent1_weights_biases)
+    child2_weights_biases = np.copy(parent2_weights_biases)
 
-    tmp = child1_weights_biases[:position].clone()
-    child1_weights_biases[:position] = child2_weights_biases[:position]
-    child2_weights_biases[:position] = tmp
+    child1_weights_biases[:position], child2_weights_biases[:position] = \
+        child2_weights_biases[:position], child1_weights_biases[:position]
     return child1_weights_biases, child2_weights_biases
 
 
@@ -116,20 +63,12 @@ def mutation(parent_weights_biases, p=0.6):
     :param parent_weights_biases:
     :param p: Mutation rate
     """
-    child_weight_biases = parent_weights_biases.clone()
+    child_weight_biases = np.copy(parent_weights_biases)
     if np.random.rand() < p:
         position = np.random.randint(0, parent_weights_biases.shape[0])
-        n = tdist.Normal(child_weight_biases.mean(), child_weight_biases.std())
-        child_weight_biases[position] = 5 * n.sample() + np.random.randint(-20, 20)
+        n = np.random.normal(np.mean(child_weight_biases), np.std(child_weight_biases))
+        child_weight_biases[position] = 5 * n + np.random.randint(-20, 20)
     return child_weight_biases
-
-
-def statistics(population: List[Individual]) -> Tuple[float, float, float]:
-    population_fitness = list(map(lambda individual: individual.fitness, population))
-    mean = np.mean(population_fitness)
-    min = np.min(population_fitness)
-    max = np.max(population_fitness)
-    return mean, min, max
 
 
 def selection(population) -> Tuple[Individual, Individual]:
@@ -164,6 +103,19 @@ def generation(env, old_population, new_population, p_mutation) -> List[Individu
         new_population[i + 1] = child2
 
 
+def statistics(population: List[Individual]) -> Tuple[float, float, float]:
+    population_fitness = list(map(lambda individual: individual.fitness, population))
+    mean = np.mean(population_fitness)
+    min = np.min(population_fitness)
+    max = np.max(population_fitness)
+    return mean, min, max
+
+
+def update_population_fitness(env, population):
+    for p in population:
+        p.calculate_fitness(env)
+
+
 @timing
 def main(env, pop_size, max_generation, p_mutation, log=False):
     date = datetime.now().strftime('%m-%d-%Y_%H-%M-%S')
@@ -174,13 +126,13 @@ def main(env, pop_size, max_generation, p_mutation, log=False):
     old_population = [Individual() for _ in range(pop_size)]
     new_population = [None] * pop_size
 
-    for _ in range(max_generation):
-        [p.calculate_fitness(env) for p in old_population]
+    for i in range(max_generation):
+        update_population_fitness(env, old_population)
         generation(env, old_population, new_population, p_mutation)
 
         mean, min, max = statistics(new_population)
         old_population = copy.deepcopy(new_population)
-        stats = f"Mean: {mean}\tmin: {min}\tmax: {max}\n"
+        stats = f"Generation {i + 1} | Mean: {mean}\tmin: {min}\tmax: {max}\n"
         if log:
             with open(path + '.log', "a") as f:
                 f.write(stats)
@@ -189,14 +141,14 @@ def main(env, pop_size, max_generation, p_mutation, log=False):
     best_model = sorted(new_population, key=lambda individual: individual.fitness, reverse=True)[0]
 
     model_path = '../models/bipedalwalker/' + path
-    torch.save(best_model.model, model_path + path + '.pt')
+    np.save(model_path + path + '.npy', best_model.nn.get_weights_biases())
 
 
 if __name__ == '__main__':
     env = gym.make('BipedalWalker-v2')
     env.seed(123)
 
-    POPULATION_SIZE = 100
+    POPULATION_SIZE = 30
     MAX_GENERATION = 5
     MUTATION_RATE = 0.6
 
