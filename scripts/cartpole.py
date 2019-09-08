@@ -51,7 +51,7 @@ def create_model(d_in, h, d_out):
     )
 
 
-def run_single(model, n_episodes=2000, render=False) -> Tuple[int, Any]:
+def run_single(model, n_episodes=2000, render=False):
     """
     Calculate fitness function for given model
 
@@ -154,9 +154,19 @@ def selection(population) -> Tuple[Individual, Individual]:
     return parent1, parent2
 
 
+def roulette_wheel_selection(population: List[Individual]):
+    total_fitness = np.sum([individual.fitness for individual in population])
+    selection_probabilities = [individual.fitness / total_fitness for individual in population]
+    pick = np.random.choice(len(population), p=selection_probabilities)
+    return population[pick]
+
+
 def generation(old_population, new_population) -> List[Individual]:
     for i in range(0, len(old_population) - 1, 2):
-        parent1, parent2 = selection(old_population)
+        # Selection
+        parent1 = roulette_wheel_selection(old_population)
+        parent2 = roulette_wheel_selection(old_population)
+
         # Crossover
         child1 = copy.deepcopy(parent1)
         child2 = copy.deepcopy(parent2)
@@ -174,14 +184,12 @@ def generation(old_population, new_population) -> List[Individual]:
         child2.calculate_fitness()
 
         # If children fitness is greater thant parents update population
-        # if child1.fitness + child2.fitness > parent1.fitness + parent2.fitness:
-        #     new_population[i] = child1
-        #     new_population[i + 1] = child2
-        # else:
-        #     new_population[i] = parent1
-        #     new_population[i + 1] = parent2
-        new_population[i] = child1
-        new_population[i + 1] = child2
+        if child1.fitness + child2.fitness > parent1.fitness + parent2.fitness:
+            new_population[i] = child1
+            new_population[i + 1] = child2
+        else:
+            new_population[i] = parent1
+            new_population[i + 1] = parent2
 
 
 if __name__ == '__main__':
