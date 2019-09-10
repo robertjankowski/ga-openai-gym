@@ -1,45 +1,10 @@
 import copy
-from collections import OrderedDict
-from datetime import datetime
-from typing import List, Tuple
+from typing import Tuple
 
 import gym
 import numpy as np
-import torch
 
 from ga.individual import roulette_wheel_selection, crossover, mutation, Individual
-
-# Observation - Box(4,)
-# 0 -> Cart Position        < -2.4, 2.4 >
-# 1 -> Cart Velocity        < -Inf, Inf >
-# 2 -> Pole Angle           < ~ -41.8°, ~ 41.8° >
-# 3 -> Pole Velocity at Tip < -Inf, Inf >
-
-
-# > Episode Termination
-#    1. Pole Angle is more than ±12°
-#    2. Cart Position is more than ±2.4 (center of the cart reaches the edge of the display)
-#    3. Episode length is greater than 200
-# > Reward is 1 for every step taken, including the termination step
-
-
-# class Individual:
-#     def __init__(self, model=None):
-#         if model is not None:
-#             self.model = model
-#         else:
-#             # H - size of hidden layer
-#             D_in, H, D_out = 4, 2, 1
-#             self.model = create_model(D_in, H, D_out)
-#         self.fitness = 0.0
-#         self.weights_biases = None
-#
-#     def calculate_fitness(self) -> None:
-#         self.fitness, self.weights_biases = run_single(self.model)
-#
-#     def update_model(self):
-#         # Update model weights and biases
-#         self.model.load_state_dict(from_parameters_list_to_order_dict(self.model.state_dict(), self.weights_biases))
 from ga.population import Population
 from nn.base_nn import NeuralNetwork
 from nn.mlp import MLP

@@ -72,8 +72,8 @@ if __name__ == '__main__':
     env.seed(123)
 
     POPULATION_SIZE = 30
-    MAX_GENERATION = 40
-    MUTATION_RATE = 0.7
+    MAX_GENERATION = 50
+    MUTATION_RATE = 0.1
     CROSSOVER_RATE = 0.9
 
     INPUT_SIZE = 24

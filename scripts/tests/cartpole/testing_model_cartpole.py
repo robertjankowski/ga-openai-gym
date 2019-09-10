@@ -1,4 +1,4 @@
-import gym
+import gym.wrappers
 
 from nn.mlp import MLP
 
@@ -6,7 +6,7 @@ from nn.mlp import MLP
 def test_cartpole(nn, file):
     global observation
     nn.load(file)
-    for _ in range(500):
+    for _ in range(100):
         env.render()
         action = nn.forward(observation)
         observation, reward, done, info = env.step(round(action.item()))
@@ -16,6 +16,7 @@ def test_cartpole(nn, file):
 
 if __name__ == '__main__':
     env = gym.make('CartPole-v1')
+    env = gym.wrappers.Monitor(env, 'cartpole', video_callable=lambda episode_id: True, force=True)
     observation = env.reset()
 
     nn = MLP(4, 2, 1)
