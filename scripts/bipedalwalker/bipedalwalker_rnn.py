@@ -71,9 +71,9 @@ if __name__ == '__main__':
     env = gym.make('BipedalWalker-v2')
     env.seed(123)
 
-    POPULATION_SIZE = 30
-    MAX_GENERATION = 50
-    MUTATION_RATE = 0.1
+    POPULATION_SIZE = 100
+    MAX_GENERATION = 1000
+    MUTATION_RATE = 0.2
     CROSSOVER_RATE = 0.9
 
     INPUT_SIZE = 24
@@ -82,6 +82,6 @@ if __name__ == '__main__':
 
     p = Population(RNNIndividual(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE),
                    POPULATION_SIZE, MAX_GENERATION, MUTATION_RATE, CROSSOVER_RATE)
-    p.run(env, generation, verbose=True, output_folder='../../models/bipedalwalker')
+    p.run(env, generation, verbose=True, output_folder='')
 
     env.close()
