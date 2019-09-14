@@ -15,13 +15,13 @@ class RNN(nn.Module, NeuralNetwork):
 
         self.i2h = nn.Linear(input_size + hidden_size, hidden_size)
         self.i2o = nn.Linear(input_size + hidden_size, output_size)
-        self.sigmoid = nn.Sigmoid()
+        self.tanh = nn.Tanh()
 
     def forward(self, input, hidden) -> Tuple[torch.Tensor, torch.Tensor]:
         combined = torch.cat((input, hidden), 0)
         hidden = self.i2h(combined)
         output = self.i2o(combined)
-        output = self.sigmoid(output)
+        output = self.tanh(output)
         return output, hidden
 
     def init_hidden(self) -> torch.Tensor:

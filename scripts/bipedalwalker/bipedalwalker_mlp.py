@@ -3,11 +3,12 @@ from typing import Tuple
 
 import gym
 import numpy as np
+import torch
 
 from ga.individual import crossover, mutation, Individual, ranking_selection
 from ga.population import Population
 from nn.base_nn import NeuralNetwork
-from nn.mlp import MLP
+from nn.mlp import MLP, MLPTorch
 
 
 class MLPIndividual(Individual):
@@ -22,6 +23,27 @@ class MLPIndividual(Individual):
             if render:
                 env.render()
             action = self.nn.forward(obs)
+            obs, reward, done, _ = env.step(action)
+            fitness += reward
+            if done:
+                break
+        return fitness, self.nn.get_weights_biases()
+
+
+class MLPTorchIndividal(Individual):
+
+    def get_model(self, input_size, hidden_size, output_size) -> NeuralNetwork:
+        return MLPTorch(input_size, hidden_size, 12, output_size)
+
+    def run_single(self, env, n_episodes=300, render=False) -> Tuple[float, np.array]:
+        obs = env.reset()
+        fitness = 0
+        for episode in range(n_episodes):
+            if render:
+                env.render()
+            obs = torch.from_numpy(obs).float()
+            action = self.nn.forward(obs)
+            action = action.detach().numpy()
             obs, reward, done, _ = env.step(action)
             fitness += reward
             if done:
@@ -67,17 +89,17 @@ if __name__ == '__main__':
     env = gym.make('BipedalWalker-v2')
     env.seed(123)
 
-    POPULATION_SIZE = 100
-    MAX_GENERATION = 2
-    MUTATION_RATE = 0.5
+    POPULATION_SIZE = 10
+    MAX_GENERATION = 10
+    MUTATION_RATE = 0.2
     CROSSOVER_RATE = 0.9
 
     INPUT_SIZE = 24
     HIDDEN_SIZE = 16
     OUTPUT_SIZE = 4
 
-    p = Population(MLPIndividual(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE),
+    p = Population(MLPTorchIndividal(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE),
                    POPULATION_SIZE, MAX_GENERATION, MUTATION_RATE, CROSSOVER_RATE)
-    p.run(env, generation, verbose=True, output_folder='../../models/bipedalwalker')
+    p.run(env, generation, verbose=True, log=True, output_folder='')
 
     env.close()

@@ -1,7 +1,7 @@
 import gym
 import torch
 
-from nn.mlp import MLP
+from nn.mlp import MLP, MLPTorch
 from nn.rnn import RNN
 
 
@@ -10,6 +10,17 @@ def test_mlp():
     for _ in range(300):
         env.render()
         action = mlp.forward(observation)
+        observation, reward, done, _ = env.step(action)
+        if done:
+            break
+
+def test_mlp_torch():
+    global observation
+    for _ in range(300):
+        env.render()
+        observation = torch.from_numpy(observation).float()
+        action = mlp_torch.forward(observation)
+        action = action.detach().numpy()
         observation, reward, done, _ = env.step(action)
         if done:
             break
@@ -46,16 +57,8 @@ if __name__ == '__main__':
              "-56_POPSIZE=30_GEN=5_MUTATION_0.6.npy")
     # test_mlp()
 
-    # Not working correctly
-    model = torch.load("../../../models/bipedalwalker/09-06-2019_14-40-56_POPSIZE=1000_GEN=1000_MUTATION_0.6.pt")
-    model.eval()
-    for _ in range(300):
-        env.render()
-        observation = torch.from_numpy(observation).float()
-        action = model(observation)
-        action = action.detach().numpy()
-        observation, reward, done, _ = env.step(action)
-        if done:
-            break
-
+    mlp_torch = MLPTorch(INPUT_SIZE, HIDDEN_SIZE, 12, OUTPUT_SIZE)
+    mlp_torch.load("../../../models/bipedalwalker/09-14-2019_12-20_NN=MLPTorchIndividal_POPSIZE=20_GEN=10_PMUTATION_0"
+                   ".6_PCROSSOVER_0.9.npy")
+    test_mlp_torch()
     env.close()
