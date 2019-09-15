@@ -14,28 +14,33 @@ class ConvNet(nn.Module, NeuralNetwork):
         """
         super(ConvNet, self).__init__()
         self.conv1 = nn.Conv2d(3, 12, kernel_size=3, padding=1)
-        self.pool = nn.MaxPool2d(kernel_size=4, stride=2, padding=0)
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=3, padding=0)
 
-        self.fc1 = nn.Linear(26508, 64)
+        self.fc1 = nn.Linear(12 * 32 * 32, 64)
         self.fc2 = nn.Linear(64, 3)
 
     def forward(self, x):
         # (3, 96, 96) -> (12, 96, 96)
         x = torch.relu(self.conv1(x))
 
-        # (12, 96, 96) -> (12, 24, 24)
+        # (12, 96, 96) -> (12, 32, 32)
         x = self.pool(x)
 
-        # (12, 24, 24) -> (1, 6912)
-        x = x.view(-1, 26508)
+        # (12, 32, 32) -> (1, 12288)
+        x = x.view(-1, 12 * 32 * 32)
 
-        # (1, 6912) -> (1, 64)
+        # (1, 12288) -> (1, 64)
         x = torch.relu(self.fc1(x))
 
         # (1, 64) -> (1, 3)
-        x = self.fc2(x)
+        x = self.fc2(x)[0]
 
-        return torch.tanh(x)
+        # [s, t, b]
+        # s = [-1, 1]; t = [0, 1]; b = [0, 1]
+        steering_angle = torch.tanh(x[0])
+        throttle = torch.sigmoid(x[1])
+        use_break = torch.sigmoid(x[2])
+        return torch.tensor([steering_angle, throttle, use_break])
 
     def get_weights_biases(self) -> np.array:
         parameters = self.state_dict().values()

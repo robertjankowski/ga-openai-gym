@@ -48,9 +48,9 @@ if __name__ == '__main__':
     HIDDEN_SIZE = 16
     OUTPUT_SIZE = 4
 
-    rnn = RNN(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)
-    rnn.load('../../../models/bipedalwalker/09-14-2019_22-26_NN=RNNIndividual_POPSIZE=100_GEN=1000_PMUTATION_0'
-             '.4_PCROSSOVER_0.9.npy')
+    # rnn = RNN(INPUT_SIZE, HIDDEN_SIZE, 12, OUTPUT_SIZE)
+    # rnn.load('../../../models/bipedalwalker/09-14-2019_22-26_NN=RNNIndividual_POPSIZE=100_GEN=1000_PMUTATION_0'
+    #          '.4_PCROSSOVER_0.9.npy')
     # test_rnn()
 
     mlp = MLP(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)
