@@ -41,6 +41,7 @@ def test_rnn():
 
 if __name__ == '__main__':
     env = gym.make('BipedalWalker-v2')
+    env.seed(123)
     observation = env.reset()
 
     INPUT_SIZE = 24
@@ -48,8 +49,8 @@ if __name__ == '__main__':
     OUTPUT_SIZE = 4
 
     rnn = RNN(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)
-    rnn.load('../../../models/bipedalwalker/09-09-2019_18-05_NN=RNNIndividual_POPSIZE=30_GEN=40_PMUTATION_0'
-             '.7_PCROSSOVER_0.9.npy')
+    rnn.load('../../../models/bipedalwalker/09-14-2019_22-26_NN=RNNIndividual_POPSIZE=100_GEN=1000_PMUTATION_0'
+             '.4_PCROSSOVER_0.9.npy')
     # test_rnn()
 
     mlp = MLP(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)
@@ -57,8 +58,8 @@ if __name__ == '__main__':
              "-56_POPSIZE=30_GEN=5_MUTATION_0.6.npy")
     # test_mlp()
 
-    mlp_torch = MLPTorch(INPUT_SIZE, HIDDEN_SIZE, 12, OUTPUT_SIZE)
-    mlp_torch.load("../../../models/bipedalwalker/09-14-2019_12-20_NN=MLPTorchIndividal_POPSIZE=20_GEN=10_PMUTATION_0"
-                   ".6_PCROSSOVER_0.9.npy")
+    mlp_torch = MLPTorch(INPUT_SIZE, 32, 12, OUTPUT_SIZE)
+    mlp_torch.load("../../../models/bipedalwalker/09-14-2019_23-38_NN=MLPTorchIndividal_POPSIZE=100_GEN"
+                   "=1000_PMUTATION_0.3_PCROSSOVER_0.9.npy")
     test_mlp_torch()
     env.close()

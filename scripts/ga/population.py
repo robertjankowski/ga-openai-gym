@@ -42,7 +42,7 @@ class Population:
         CSV format -> date,n_generation,mean,min,max
         """
         date = self.now()
-        file_name = self.get_file_name(date) + '.csv'
+        file_name = 'logs.csv'
         mean, min, max = statistics(self.new_population)
         stats = f'{date},{n_gen},{mean},{min},{max}\n'
         with open(output_folder + '/' + file_name, 'a') as f:

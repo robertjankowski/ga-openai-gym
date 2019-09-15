@@ -93,8 +93,9 @@ def mutation(parent_weights_biases: np.array, p: float):
     child_weight_biases = np.copy(parent_weights_biases)
     if np.random.rand() < p:
         position = np.random.randint(0, parent_weights_biases.shape[0])
-        n = np.random.normal(np.mean(child_weight_biases), np.std(child_weight_biases))
-        child_weight_biases[position] = n + np.random.randint(-10, 10)
+        # n = np.random.normal(np.mean(child_weight_biases), np.std(child_weight_biases))
+        n = np.random.uniform(np.min(child_weight_biases), np.max(child_weight_biases))
+        child_weight_biases[position] = n + np.random.randint(-30, 30)
     return child_weight_biases
 
 
@@ -121,7 +122,7 @@ class MLPTorchIndividal(Individual):
     def get_model(self, input_size, hidden_size, output_size) -> NeuralNetwork:
         return MLPTorch(input_size, hidden_size, 12, output_size)
 
-    def run_single(self, env, n_episodes=300, render=False) -> Tuple[float, np.array]:
+    def run_single(self, env, n_episodes=1000, render=False) -> Tuple[float, np.array]:
         obs = env.reset()
         fitness = 0
         for episode in range(n_episodes):
@@ -204,7 +205,7 @@ class Population:
         CSV format -> date,n_generation,mean,min,max
         """
         date = self.now()
-        file_name = self.get_file_name(date) + '.csv'
+        file_name = 'logs.csv'
         mean, min, max = statistics(self.new_population)
         stats = f'{date},{n_gen},{mean},{min},{max}\n'
         with open(output_folder + file_name, 'a') as f:
@@ -250,9 +251,9 @@ if __name__ == '__main__':
     env.seed(123)
 
     POPULATION_SIZE = 100
-    MAX_GENERATION = 1000
-    MUTATION_RATE = 0.3
-    CROSSOVER_RATE = 0.9
+    MAX_GENERATION = 2000
+    MUTATION_RATE = 0.1
+    CROSSOVER_RATE = 0.8
 
     INPUT_SIZE = 24
     HIDDEN_SIZE = 32
