@@ -14,7 +14,7 @@ from nn.rnn import RNN
 class RNNIndividual(Individual):
 
     def get_model(self, input_size, hidden_size, output_size) -> NeuralNetwork:
-        return RNN(input_size, hidden_size, output_size)
+        return RNN(input_size, hidden_size, 12, output_size)
 
     def run_single(self, env, n_episodes=300, render=False) -> Tuple[float, np.array]:
         obs = env.reset()
@@ -26,6 +26,7 @@ class RNNIndividual(Individual):
             obs = torch.from_numpy(obs).float()
             action, hidden = self.nn.forward(obs, hidden)
             action = action.detach().numpy()
+            action = np.nan_to_num(action)
             obs, reward, done, _ = env.step(action)
             fitness += reward
             if done:
@@ -71,8 +72,8 @@ if __name__ == '__main__':
     env = gym.make('BipedalWalker-v2')
     env.seed(123)
 
-    POPULATION_SIZE = 100
-    MAX_GENERATION = 1000
+    POPULATION_SIZE = 10
+    MAX_GENERATION = 10
     MUTATION_RATE = 0.2
     CROSSOVER_RATE = 0.9
 

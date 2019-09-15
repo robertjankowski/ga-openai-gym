@@ -24,23 +24,23 @@ class NeuralNetwork(ABC):
 
 
 class RNN(nn.Module, NeuralNetwork):
-    def __init__(self, input_size, hidden_size, output_size):
+    def __init__(self, input_size, hidden_size1, hidden_size2, output_size):
         super(RNN, self).__init__()
-        self.hidden_size = hidden_size
+        self.hidden_size1 = hidden_size1
 
-        self.i2h = nn.Linear(input_size + hidden_size, hidden_size)
-        self.i2o = nn.Linear(input_size + hidden_size, output_size)
-        self.sigmoid = nn.Sigmoid()
+        self.i2h = nn.Linear(input_size + hidden_size1, hidden_size2)
+        self.hidden_combined_layer = nn.Linear(hidden_size2, hidden_size1)
+        self.output_combined_layer = nn.Linear(hidden_size2, output_size)
 
     def forward(self, input, hidden) -> Tuple[torch.Tensor, torch.Tensor]:
         combined = torch.cat((input, hidden), 0)
-        hidden = self.i2h(combined)
-        output = self.i2o(combined)
-        output = self.sigmoid(output)
+        combined = torch.relu(self.i2h(combined))
+        hidden = self.hidden_combined_layer(combined)
+        output = nn.Tanh()(self.output_combined_layer(combined))
         return output, hidden
 
     def init_hidden(self) -> torch.Tensor:
-        return torch.zeros(self.hidden_size)
+        return torch.zeros(self.hidden_size1)
 
     def get_weights_biases(self) -> np.array:
         parameters = self.state_dict().values()
@@ -197,7 +197,7 @@ def statistics(population: List[Individual]):
 class RNNIndividual(Individual):
 
     def get_model(self, input_size, hidden_size, output_size) -> NeuralNetwork:
-        return RNN(input_size, hidden_size, output_size)
+        return RNN(input_size, hidden_size, 12, output_size)
 
     def run_single(self, env, n_episodes=300, render=False) -> Tuple[float, np.array]:
         obs = env.reset()
@@ -253,11 +253,11 @@ def generation(env, old_population, new_population, p_mutation, p_crossover):
 
 if __name__ == '__main__':
     env = gym.make('BipedalWalker-v2')
-    env.seed(123)
+    # env.seed(123)
 
     POPULATION_SIZE = 100
-    MAX_GENERATION = 1000
-    MUTATION_RATE = 0.4
+    MAX_GENERATION = 3000
+    MUTATION_RATE = 0.2
     CROSSOVER_RATE = 0.9
 
     INPUT_SIZE = 24
