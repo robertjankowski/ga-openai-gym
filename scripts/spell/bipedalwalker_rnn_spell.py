@@ -8,6 +8,7 @@ import gym
 import numpy as np
 import torch
 from torch import nn
+import torch.nn.functional as F
 
 
 class NeuralNetwork(ABC):
@@ -34,8 +35,8 @@ class RNN(nn.Module, NeuralNetwork):
 
     def forward(self, input, hidden) -> Tuple[torch.Tensor, torch.Tensor]:
         combined = torch.cat((input, hidden), 0)
-        combined = torch.relu(self.i2h(combined))
-        hidden = self.hidden_combined_layer(combined)
+        combined = F.leaky_relu(self.i2h(combined))
+        hidden = nn.Tanh()(self.hidden_combined_layer(combined))
         output = nn.Tanh()(self.output_combined_layer(combined))
         return output, hidden
 
@@ -171,8 +172,8 @@ def mutation(parent_weights_biases: np.array, p: float):
     child_weight_biases = np.copy(parent_weights_biases)
     if np.random.rand() < p:
         position = np.random.randint(0, parent_weights_biases.shape[0])
-        # n = np.random.normal(np.mean(child_weight_biases), np.std(child_weight_biases))
-        child_weight_biases[position] = np.random.randint(-20, 20)
+        n = np.random.uniform(np.min(child_weight_biases), np.max(child_weight_biases))
+        child_weight_biases[position] = n + np.random.randint(-20, 20)
     return child_weight_biases
 
 
@@ -197,7 +198,7 @@ def statistics(population: List[Individual]):
 class RNNIndividual(Individual):
 
     def get_model(self, input_size, hidden_size, output_size) -> NeuralNetwork:
-        return RNN(input_size, hidden_size, 12, output_size)
+        return RNN(input_size, hidden_size, 16, output_size)
 
     def run_single(self, env, n_episodes=300, render=False) -> Tuple[float, np.array]:
         obs = env.reset()
@@ -210,8 +211,9 @@ class RNNIndividual(Individual):
             action, hidden = self.nn.forward(obs, hidden)
             action = action.detach().numpy()
             action = np.nan_to_num(action)
+
             obs, reward, done, _ = env.step(action)
-            fitness += reward
+            fitness += np.power(reward, 2)
             if done:
                 break
         return fitness, self.nn.get_weights_biases()
@@ -256,12 +258,14 @@ if __name__ == '__main__':
     # env.seed(123)
 
     POPULATION_SIZE = 100
-    MAX_GENERATION = 3000
-    MUTATION_RATE = 0.2
+    MAX_GENERATION = 2000
+    MUTATION_RATE = 0.1
     CROSSOVER_RATE = 0.9
 
+    # NN architecture
+    # 24 - 32 - 16 - 4
     INPUT_SIZE = 24
-    HIDDEN_SIZE = 16
+    HIDDEN_SIZE = 32
     OUTPUT_SIZE = 4
 
     p = Population(RNNIndividual(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE),
