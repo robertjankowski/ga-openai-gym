@@ -198,7 +198,7 @@ def statistics(population: List[Individual]):
 class RNNIndividual(Individual):
 
     def get_model(self, input_size, hidden_size, output_size) -> NeuralNetwork:
-        return RNN(input_size, hidden_size, 16, output_size)
+        return RNN(input_size, hidden_size, 12, output_size)
 
     def run_single(self, env, n_episodes=300, render=False) -> Tuple[float, np.array]:
         obs = env.reset()
@@ -213,7 +213,7 @@ class RNNIndividual(Individual):
             action = np.nan_to_num(action)
 
             obs, reward, done, _ = env.step(action)
-            fitness += np.power(reward, 2)
+            fitness += np.exp(reward)
             if done:
                 break
         return fitness, self.nn.get_weights_biases()
@@ -263,9 +263,9 @@ if __name__ == '__main__':
     CROSSOVER_RATE = 0.9
 
     # NN architecture
-    # 24 - 32 - 16 - 4
+    # 24 - 48 - 12 - 4
     INPUT_SIZE = 24
-    HIDDEN_SIZE = 32
+    HIDDEN_SIZE = 48
     OUTPUT_SIZE = 4
 
     p = Population(RNNIndividual(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE),
