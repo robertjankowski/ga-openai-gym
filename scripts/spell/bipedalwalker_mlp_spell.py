@@ -250,11 +250,12 @@ if __name__ == '__main__':
     env = gym.make('BipedalWalker-v2')
     env.seed(123)
 
-    POPULATION_SIZE = 100
-    MAX_GENERATION = 2000
-    MUTATION_RATE = 0.1
-    CROSSOVER_RATE = 0.8
+    POPULATION_SIZE = 200
+    MAX_GENERATION = 4000
+    MUTATION_RATE = 0.3
+    CROSSOVER_RATE = 0.9
 
+    # 24 - 32 - 12 - 4
     INPUT_SIZE = 24
     HIDDEN_SIZE = 32
     OUTPUT_SIZE = 4
