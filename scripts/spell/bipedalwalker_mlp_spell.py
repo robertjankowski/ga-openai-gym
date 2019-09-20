@@ -128,6 +128,8 @@ class MLPTorchIndividal(Individual):
         for episode in range(n_episodes):
             if render:
                 env.render()
+            # Cut only to first 10 observations
+            obs = obs[:10]
             obs = torch.from_numpy(obs).float()
             action = self.nn.forward(obs)
             action = action.detach().numpy()
@@ -250,14 +252,14 @@ if __name__ == '__main__':
     env = gym.make('BipedalWalker-v2')
     env.seed(123)
 
-    POPULATION_SIZE = 200
-    MAX_GENERATION = 4000
+    POPULATION_SIZE = 50
+    MAX_GENERATION = 2000
     MUTATION_RATE = 0.3
-    CROSSOVER_RATE = 0.9
+    CROSSOVER_RATE = 0.8
 
-    # 24 - 32 - 12 - 4
-    INPUT_SIZE = 24
-    HIDDEN_SIZE = 32
+    # 10 - 24 - 12 - 4
+    INPUT_SIZE = 10
+    HIDDEN_SIZE = 24
     OUTPUT_SIZE = 4
 
     p = Population(MLPTorchIndividal(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE),

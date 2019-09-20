@@ -1,4 +1,5 @@
 import gym
+import numpy as np
 import torch
 
 from nn.mlp import MLP, MLPTorch
@@ -50,9 +51,9 @@ if __name__ == '__main__':
     HIDDEN_SIZE = 16
     OUTPUT_SIZE = 4
 
-    rnn = RNN(INPUT_SIZE, 32, 16, OUTPUT_SIZE)
-    rnn.load('../../../models/bipedalwalker/09-17-2019_18-05_NN=RNNIndividual_POPSIZE=10_GEN=10_PMUTATION_0'
-             '.2_PCROSSOVER_0.9.npy')
+    rnn = RNN(INPUT_SIZE, 48, 12, OUTPUT_SIZE)
+    rnn.load('../../../models/bipedalwalker/09-19-2019_19-30_NN=RNNIndividual_POPSIZE=100_GEN=2000_PMUTATION_0'
+             '.1_PCROSSOVER_0.9.npy')
     # test_rnn()
 
     mlp = MLP(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)
