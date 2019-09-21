@@ -9,23 +9,23 @@ from nn.base_nn import NeuralNetwork
 
 
 class RNN(nn.Module, NeuralNetwork):
-    def __init__(self, input_size, hidden_size, output_size):
+    def __init__(self, input_size, hidden_size1, hidden_size2, output_size):
         super(RNN, self).__init__()
-        self.hidden_size = hidden_size
+        self.hidden_size1 = hidden_size1
 
-        self.i2h = nn.Linear(input_size + hidden_size, hidden_size)
-        self.i2o = nn.Linear(input_size + hidden_size, output_size)
-        self.sigmoid = nn.Sigmoid()
+        self.i2h = nn.Linear(input_size + hidden_size1, hidden_size2)
+        self.hidden_combined_layer = nn.Linear(hidden_size2, hidden_size1)
+        self.output_combined_layer = nn.Linear(hidden_size2, output_size)
 
     def forward(self, input, hidden) -> Tuple[torch.Tensor, torch.Tensor]:
         combined = torch.cat((input, hidden), 0)
-        hidden = self.i2h(combined)
-        output = self.i2o(combined)
-        output = self.sigmoid(output)
+        combined = torch.relu(self.i2h(combined))
+        hidden = self.hidden_combined_layer(combined)
+        output = nn.Tanh()(self.output_combined_layer(combined))
         return output, hidden
 
     def init_hidden(self) -> torch.Tensor:
-        return torch.zeros(self.hidden_size)
+        return torch.zeros(self.hidden_size1)
 
     def get_weights_biases(self) -> np.array:
         parameters = self.state_dict().values()

@@ -59,3 +59,11 @@ Run on [**Spell**](https://web.spell.run/robjan/)
 ```shell script
 spell run "python scripts/bipedalwalker.py" --pip-req requirements.txt
 ```
+For car racing (need to open virual display server)
+```shell script
+spell run --apt python-dev --apt cmake --apt zlib1g-dev --apt libjpeg-dev \
+	--apt xvfb --apt ffmpeg --apt xorg-dev --apt python-opengl --apt libboost-all-dev \
+	--apt libsdl2-dev --apt swig \ 
+	"Xvfb :1 -screen 0 1024x768x24 -ac +extension GLX +render -noreset &> xvfb.log ; export DISPLAY=:1 ; python scripts/spell/carracing_conv_spell.py" \ 
+	--pip-req requirements.txt
+```

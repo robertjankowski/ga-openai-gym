@@ -42,10 +42,10 @@ class Population:
         CSV format -> date,n_generation,mean,min,max
         """
         date = self.now()
-        file_name = self.get_file_name(date) + '.csv'
+        file_name = 'logs.csv'
         mean, min, max = statistics(self.new_population)
         stats = f'{date},{n_gen},{mean},{min},{max}\n'
-        with open(output_folder + '/' + file_name, 'a') as f:
+        with open(output_folder + file_name, 'a') as f:
             f.write(stats)
 
     def show_stats(self, n_gen):
@@ -61,7 +61,7 @@ class Population:
         best_model = self.get_best_model_parameters()
         date = self.now()
         file_name = self.get_file_name(date) + '.npy'
-        np.save(output_folder + '/' + file_name, best_model)
+        np.save(output_folder + file_name, best_model)
 
     def get_best_model_parameters(self) -> np.array:
         """

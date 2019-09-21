@@ -5,43 +5,25 @@ import gym
 import numpy as np
 import torch
 
-from ga.individual import crossover, mutation, Individual, ranking_selection
+from ga.individual import ranking_selection, crossover, mutation, Individual
 from ga.population import Population
 from nn.base_nn import NeuralNetwork
-from nn.mlp import MLP, MLPTorch
+from nn.conv import ConvNet
 
 
-class MLPIndividual(Individual):
+class ConvNetTorchIndividal(Individual):
 
     def get_model(self, input_size, hidden_size, output_size) -> NeuralNetwork:
-        return MLP(input_size, hidden_size, output_size)
+        return ConvNet()
 
-    def run_single(self, env, n_episodes=300, render=False) -> Tuple[float, np.array]:
+    def run_single(self, env, n_episodes=100, render=False) -> Tuple[float, np.array]:
         obs = env.reset()
         fitness = 0
         for episode in range(n_episodes):
             if render:
                 env.render()
-            action = self.nn.forward(obs)
-            obs, reward, done, _ = env.step(action)
-            fitness += reward
-            if done:
-                break
-        return fitness, self.nn.get_weights_biases()
-
-
-class MLPTorchIndividal(Individual):
-
-    def get_model(self, input_size, hidden_size, output_size) -> NeuralNetwork:
-        return MLPTorch(input_size, hidden_size, 12, output_size)
-
-    def run_single(self, env, n_episodes=300, render=False) -> Tuple[float, np.array]:
-        obs = env.reset()
-        fitness = 0
-        for episode in range(n_episodes):
-            if render:
-                env.render()
-            obs = torch.from_numpy(obs).float()
+            obs = torch.from_numpy(np.flip(obs, axis=0).copy()).float()
+            obs = obs.reshape((-1, 3, 96, 96))
             action = self.nn.forward(obs)
             action = action.detach().numpy()
             obs, reward, done, _ = env.step(action)
@@ -86,20 +68,16 @@ def generation(env, old_population, new_population, p_mutation, p_crossover):
 
 
 if __name__ == '__main__':
-    env = gym.make('BipedalWalker-v2')
+    env = gym.make('CarRacing-v0')
     env.seed(123)
 
-    POPULATION_SIZE = 10
-    MAX_GENERATION = 10
-    MUTATION_RATE = 0.2
-    CROSSOVER_RATE = 0.9
+    POPULATION_SIZE = 100
+    MAX_GENERATION = 1000
+    MUTATION_RATE = 0.1
+    CROSSOVER_RATE = 0.8
 
-    INPUT_SIZE = 24
-    HIDDEN_SIZE = 16
-    OUTPUT_SIZE = 4
-
-    p = Population(MLPTorchIndividal(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE),
-                   POPULATION_SIZE, MAX_GENERATION, MUTATION_RATE, CROSSOVER_RATE)
-    p.run(env, generation, verbose=True, log=True, output_folder='')
+    p = Population(ConvNetTorchIndividal(None, None, None), POPULATION_SIZE, MAX_GENERATION,
+                   MUTATION_RATE, CROSSOVER_RATE)
+    p.run(env, generation, verbose=True, output_folder='')
 
     env.close()
