@@ -23,7 +23,7 @@ The goal of the GA is to find the optimal values of weights and biases for a giv
 4. If child fitness is greater than parent fitness score the new population is updated
 5. Go to 2.
 
-| ![mlp-cartpole](docs/bipedalwalker/mlp.png) | gigit 
+| ![mlp-cartpole](docs/bipedalwalker/mlp.png) |
 |:---:| 
 | Architecture of neural network used in BipedalWalker-v2 problem |
 
