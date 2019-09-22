@@ -12,16 +12,40 @@
 
 ### Explanation
 
-Here is an MLP architecture for Cartpole-v0. The input vector has length 4 (observation from the environment). 
-There is one hidden layer (size 2) and the output layer with sigmoid function as action. 
-To train the neural network we can use backpropagation algorithm, however here I use a genetic algorithm. 
+##### Overview
+From Cartpole-v0 we get vector of observations and reward for each action (0/1) given to the environment.
+The observations is feed into MLP with 4-2-1 architecture and sigmoid function as the output.
+Usually to train the neural network we can use backpropagation algorithm, however here I use a genetic algorithm.
 The goal of the GA is to find the optimal values of weights and biases for a given network. 
 
-1. The population of the networks is created
-2. Fitness function for each network is calculated for selection operation
-3. The weights and biases are transformed into a vector for crossover and mutation operations
-4. If child fitness is greater than parent fitness score the new population is updated
-5. Go to 2.
+##### Fitness function
+
+Function fitness is the sum of rewards. Here is sample code (`nn` is a single neural network):
+```python
+env = gym.make('CartPole-v0')
+
+def get_fitness(n_episodes):
+    obs = env.reset()
+    fitness = 0
+    for episode in range(n_episodes):
+        action = nn.forward(obs)
+        obs, reward, done, _ = env.step(action)
+        fitness += reward
+        if done:
+            break
+    return fitness
+```
+
+##### Schema
+
+1. Create initial population of neural networks. At first the weights and biases are randomly initialized.
+2. Calculate fitness function for each individual.
+3. Weights and biases are transformed into a single vector.
+4. Selection (elitism selection or roulette wheel selection)
+5. Crossover 
+6. Mutation
+7. If child fitness is greater than parent fitness score the new population is updated
+8. Go to 2.
 
 | ![mlp-cartpole](docs/bipedalwalker/mlp.png) |
 |:---:| 
