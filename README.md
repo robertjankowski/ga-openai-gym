@@ -10,6 +10,15 @@
 | ![cartpole-random](docs/cartpole/cartpole_random.gif) | ![cartpole-random](docs/cartpole/cartpole_nn.gif) | $1600 |
 
 
+### Run and test
+Pretrained models are in `models`. Testing scripts are in `scripts/tests`.
+E.g. for BipedalWalker-2 is possible to test different architecture of neural networks like simple one layer or two layers perceptron or recurrent neural networks.
+
+```shell script
+python scripts/tests/bipedalwalker/testing_model_bipedalwalker.py
+```
+
+
 ### Explanation
 
 ##### Overview
@@ -35,6 +44,11 @@ def get_fitness(n_episodes):
             break
     return fitness
 ```
+
+| ![fitenss_function](docs/bipedalwalker/fitness_function.png) |
+|:---:| 
+| Mean value of fitness function for BipedalWalker-v2 problem |
+
 
 ##### Schema
 
