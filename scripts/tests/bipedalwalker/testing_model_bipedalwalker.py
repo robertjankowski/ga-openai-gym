@@ -16,11 +16,13 @@ def test_mlp():
             break
 
 
-def test_mlp_torch():
+def test_mlp_torch(is_reduced=False):
     global observation
-    for _ in range(300):
+    for _ in range(500):
         env.render()
         observation = torch.from_numpy(observation).float()
+        if is_reduced:
+            observation = observation[:10]
         action = mlp_torch.forward(observation)
         action = action.detach().numpy()
         observation, reward, done, _ = env.step(action)
@@ -45,6 +47,7 @@ def test_rnn():
 if __name__ == '__main__':
     env = gym.make('BipedalWalker-v2')
     env.seed(123)
+    # env = gym.wrappers.Monitor(env, 'cartpole', video_callable=lambda episode_id: True, force=True)
     observation = env.reset()
 
     INPUT_SIZE = 24
@@ -61,9 +64,11 @@ if __name__ == '__main__':
     #          "-56_POPSIZE=30_GEN=5_MUTATION_0.6.npy")
     # test_mlp()
 
-    mlp_torch = MLPTorch(INPUT_SIZE, 32, 12, OUTPUT_SIZE)
-    mlp_torch.load("../../../models/bipedalwalker/09-14-2019_23-38_NN=MLPTorchIndividal_POPSIZE=100_GEN"
-                   "=1000_PMUTATION_0.3_PCROSSOVER_0.9.npy")
-    test_mlp_torch()
+    # Model 09-14-2019 NN: 24 - 32 - 12 - 4
+    # Model 90-21-2019 NN: 10 - 24 - 12 - 4
+    mlp_torch = MLPTorch(10, 24, 12, OUTPUT_SIZE)
+    mlp_torch.load("../../../models/bipedalwalker/09-21-2019_22-29_NN=MLPTorchIndividal_POPSIZE=50_GEN"
+                   "=2000_PMUTATION_0.3_PCROSSOVER_0.8.npy")
+    test_mlp_torch(is_reduced=True)
 
     env.close()

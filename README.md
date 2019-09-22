@@ -1,6 +1,15 @@
 ## Using genetic algorithms to train neural network in OpenAI gym environment. 
 ***
 
+ | Random BipedalWalker-v2 | GA BipedalWalker-v2 | 
+| ------------- |:-------------:|
+| ![mlp_bipedal](docs/bipedalwalker/bipedalwalker_random.gif) | ![mlp_bipedal](docs/bipedalwalker/mlp_bipedalwalker.gif) |
+
+ | Random Cartpole-v0 | GA Cartpole-v0 | 
+| ------------- |:-------------:|
+| ![cartpole-random](docs/cartpole/cartpole_random.gif) | ![cartpole-random](docs/cartpole/cartpole_nn.gif) | $1600 |
+
+
 ### Explanation
 
 Here is an MLP architecture for Cartpole-v0. The input vector has length 4 (observation from the environment). 
@@ -13,22 +22,46 @@ The goal of the GA is to find the optimal values of weights and biases for a giv
 3. The weights and biases are transformed into a vector for crossover and mutation operations
 4. If child fitness is greater than parent fitness score the new population is updated
 5. Go to 2.
-  
-![mlp-cartpole](docs/cartpole/mlp_cartpole.svg)
+
+| ![mlp-cartpole](docs/bipedalwalker/mlp.png) |
+|:---:| 
+| Architecture of neural network used in BipedalWalker-v2 problem |
+
+## [BipedalWalker-v2](https://github.com/openai/gym/wiki/BipedalWalker-v2)
+
+**Environment** (continuous)
+ - 24 observations (hull_angle, vel_x, vel_y and many more)
+
+**Actions** (continues):
+ - Hip_1 and Hip_2 (Torque / Velocity)
+ - Knee_1 and Knee_2 (Torque / Velocity)
+ 
+**Reward** is given for moving forward, total 300+ points up to the far end. 
+If the robot falls, it gets -100
+
+**Episode Termination**
+The episode ends when the robot body touches ground or the robot reaches far right side of the environment
+
+**Neural network architecture**: simple MLP
+ - Input size: 10
+ - One hidden layer, size: 24
+ - Second hidden layer, size: 12
+ - Output layer with `tanh` activation function, size: 4
+ 
+**Genetic algorithm parameters**:
+ - population size: 50
+ - generation: 2000
+ - mutation rate: 0.3
+ - crossover rate: 0.9
 
 
-***
-## Cartpole-v0
+## [Cartpole-v0](https://github.com/openai/gym/wiki/CartPole-v0)
 
-**Environment** (continuous):
- - Cart Position
- - Cart Velocity
- - Pole Angle
- - Pole Velocity at Tip
+**Environment** (continuous)
+ - 4 observations (Cart Position and Velocity, Pole Angle and Velocity at Tip)
 
 **Actions** (discrete):
- - Push cart to the left
- - Push cart to the right 
+ - Push cart to the left or right
 
 **Reward**: 1 for every step taken, including the termination step
 
@@ -48,11 +81,6 @@ The goal of the GA is to find the optimal values of weights and biases for a giv
  - mutation rate: 0.4
  - crossover rate: 0.9
  
- | Random cartpole   | GA cartpole           | 
-| ------------- |:-------------:|
-| ![cartpole-random](docs/cartpole/cartpole_random.gif)     | ![cartpole-random](docs/cartpole/cartpole_nn.gif) | $1600 |
-
-
 ***
 
 Run on [**Spell**](https://web.spell.run/robjan/)
