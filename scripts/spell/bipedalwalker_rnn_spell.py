@@ -197,6 +197,10 @@ def statistics(population: List[Individual]):
 
 class RNNIndividual(Individual):
 
+    def __init__(self, input_size, hidden_size, output_size):
+        super().__init__(input_size, hidden_size, output_size)
+        self.input_size = input_size
+
     def get_model(self, input_size, hidden_size, output_size) -> NeuralNetwork:
         return RNN(input_size, hidden_size, 12, output_size)
 
@@ -208,12 +212,11 @@ class RNNIndividual(Individual):
             if render:
                 env.render()
             obs = torch.from_numpy(obs).float()
+            obs = obs[:self.input_size]
             action, hidden = self.nn.forward(obs, hidden)
             action = action.detach().numpy()
-            action = np.nan_to_num(action)
-
             obs, reward, done, _ = env.step(action)
-            fitness += np.exp(reward)
+            fitness += reward
             if done:
                 break
         return fitness, self.nn.get_weights_biases()
@@ -255,21 +258,21 @@ def generation(env, old_population, new_population, p_mutation, p_crossover):
 
 if __name__ == '__main__':
     env = gym.make('BipedalWalker-v2')
-    # env.seed(123)
+    env.seed(123)
 
-    POPULATION_SIZE = 100
+    POPULATION_SIZE = 50
     MAX_GENERATION = 2000
-    MUTATION_RATE = 0.1
-    CROSSOVER_RATE = 0.9
+    MUTATION_RATE = 0.3
+    CROSSOVER_RATE = 0.8
 
     # NN architecture
-    # 24 - 48 - 12 - 4
-    INPUT_SIZE = 24
-    HIDDEN_SIZE = 48
+    # 10 - 24 - 12 - 4
+    INPUT_SIZE = 10
+    HIDDEN_SIZE = 24
     OUTPUT_SIZE = 4
 
     p = Population(RNNIndividual(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE),
                    POPULATION_SIZE, MAX_GENERATION, MUTATION_RATE, CROSSOVER_RATE)
-    p.run(env, generation, verbose=True, output_folder='')
+    p.run(env, generation, verbose=True, output_folder='', log=True)
 
     env.close()
