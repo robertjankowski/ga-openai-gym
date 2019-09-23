@@ -36,8 +36,8 @@ class RNN(nn.Module, NeuralNetwork):
     def forward(self, input, hidden) -> Tuple[torch.Tensor, torch.Tensor]:
         combined = torch.cat((input, hidden), 0)
         combined = F.leaky_relu(self.i2h(combined))
-        hidden = nn.Tanh()(self.hidden_combined_layer(combined))
-        output = nn.Tanh()(self.output_combined_layer(combined))
+        hidden = nn.Sigmoid()(self.hidden_combined_layer(combined))
+        output = self.output_combined_layer(combined)
         return output, hidden
 
     def init_hidden(self) -> torch.Tensor:
@@ -95,10 +95,10 @@ class Population:
         CSV format -> date,n_generation,mean,min,max
         """
         date = self.now()
-        file_name = self.get_file_name(date) + '.csv'
+        file_name = 'logs.csv'
         mean, min, max = statistics(self.new_population)
         stats = f'{date},{n_gen},{mean},{min},{max}\n'
-        with open(output_folder + '/' + file_name, 'a') as f:
+        with open(output_folder + file_name, 'a') as f:
             f.write(stats)
 
     def show_stats(self, n_gen):
