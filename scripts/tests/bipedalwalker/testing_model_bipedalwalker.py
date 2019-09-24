@@ -30,12 +30,14 @@ def test_mlp_torch(is_reduced=False):
             break
 
 
-def test_rnn():
+def test_rnn(is_reduced=False):
     global observation
     hidden = rnn.init_hidden()
     for _ in range(300):
         env.render()
         observation = torch.from_numpy(observation).float()
+        if is_reduced:
+            observation = observation[:10]
         action, hidden = rnn.forward(observation, hidden)
         action = action.detach().numpy()
         # action = np.nan_to_num(action)
@@ -65,10 +67,10 @@ if __name__ == '__main__':
     # test_mlp()
 
     # Model 09-14-2019 NN: 24 - 32 - 12 - 4
-    # Model 90-21-2019 NN: 10 - 24 - 12 - 4
+    # Model 09-21-2019 NN: 10 - 24 - 12 - 4
     mlp_torch = MLPTorch(10, 24, 12, OUTPUT_SIZE)
     mlp_torch.load("../../../models/bipedalwalker/09-21-2019_22-29_NN=MLPTorchIndividal_POPSIZE=50_GEN"
                    "=2000_PMUTATION_0.3_PCROSSOVER_0.8.npy")
-    test_mlp_torch(is_reduced=True)
+    # test_mlp_torch(is_reduced=True)
 
     env.close()

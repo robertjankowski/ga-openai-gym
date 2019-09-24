@@ -35,7 +35,8 @@ class MLPTorch(nn.Module, NeuralNetwork):
         output = torch.relu(self.linear1(x))
         output = torch.relu(self.linear2(output))
         output = self.dropout(output)
-        output = torch.tanh(self.linear3(output))
+        # output = torch.tanh(self.linear3(output))
+        output = self.linear3(output)
         return output
 
     def get_weights_biases(self) -> np.array:
@@ -113,14 +114,18 @@ def roulette_wheel_selection(population: List[Individual]):
 
 
 def statistics(population: List[Individual]):
+    print(population)
     population_fitness = [individual.fitness for individual in population]
     return np.mean(population_fitness), np.min(population_fitness), np.max(population_fitness)
 
 
 class MLPTorchIndividal(Individual):
+    def __init__(self, input_size, hidden_size, output_size):
+        super().__init__(input_size, hidden_size, output_size)
+        self.input_size = input_size
 
     def get_model(self, input_size, hidden_size, output_size) -> NeuralNetwork:
-        return MLPTorch(input_size, hidden_size, 12, output_size)
+        return MLPTorch(input_size, hidden_size, 12, output_size, p=0.2)
 
     def run_single(self, env, n_episodes=1000, render=False) -> Tuple[float, np.array]:
         obs = env.reset()
@@ -128,8 +133,7 @@ class MLPTorchIndividal(Individual):
         for episode in range(n_episodes):
             if render:
                 env.render()
-            # Cut only to first 10 observations
-            obs = obs[:10]
+            obs = obs[:self.input_size]
             obs = torch.from_numpy(obs).float()
             action = self.nn.forward(obs)
             action = action.detach().numpy()
@@ -253,13 +257,13 @@ if __name__ == '__main__':
     env.seed(123)
 
     POPULATION_SIZE = 50
-    MAX_GENERATION = 2000
-    MUTATION_RATE = 0.3
-    CROSSOVER_RATE = 0.8
+    MAX_GENERATION = 3000
+    MUTATION_RATE = 0.1
+    CROSSOVER_RATE = 0.9
 
-    # 10 - 24 - 12 - 4
-    INPUT_SIZE = 10
-    HIDDEN_SIZE = 24
+    # 5 - 16 - 12 - 4
+    INPUT_SIZE = 5
+    HIDDEN_SIZE = 16
     OUTPUT_SIZE = 4
 
     p = Population(MLPTorchIndividal(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE),
