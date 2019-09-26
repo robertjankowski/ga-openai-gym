@@ -16,13 +16,13 @@ def test_mlp():
             break
 
 
-def test_mlp_torch(is_reduced=False):
+def test_mlp_torch(input_size=None, is_reduced=False):
     global observation
     for _ in range(500):
         env.render()
         observation = torch.from_numpy(observation).float()
         if is_reduced:
-            observation = observation[:10]
+            observation = observation[:input_size]
         action = mlp_torch.forward(observation)
         action = action.detach().numpy()
         observation, reward, done, _ = env.step(action)
@@ -68,9 +68,10 @@ if __name__ == '__main__':
 
     # Model 09-14-2019 NN: 24 - 32 - 12 - 4
     # Model 09-21-2019 NN: 10 - 24 - 12 - 4
-    mlp_torch = MLPTorch(10, 24, 12, OUTPUT_SIZE)
-    mlp_torch.load("../../../models/bipedalwalker/09-21-2019_22-29_NN=MLPTorchIndividal_POPSIZE=50_GEN"
-                   "=2000_PMUTATION_0.3_PCROSSOVER_0.8.npy")
-    # test_mlp_torch(is_reduced=True)
+    # Model 09-26-2019 NN: 5  - 16 - 12 - 4
+    mlp_torch = MLPTorch(5, 16, 12, OUTPUT_SIZE)
+    mlp_torch.load("../../../models/bipedalwalker/09-26-2019_03-33_NN=MLPTorchIndividal_POPSIZE=50_GEN"
+                   "=3000_PMUTATION_0.1_PCROSSOVER_0.9.npy")
+    test_mlp_torch(input_size=5, is_reduced=True)
 
     env.close()

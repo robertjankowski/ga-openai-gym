@@ -8,8 +8,8 @@ if __name__ == '__main__':
     env = gym.make('CarRacing-v0')
     obs = env.reset()
     nn = ConvNet()
-    nn.load("../../../models/carracing/09-15-2019_12-43_NN=ConvNetTorchIndividal_POPSIZE=10_GEN=10_PMUTATION_0"
-            ".1_PCROSSOVER_0.8.npy")
+    nn.load("../../../models/carracing/09-26-2019_16-44_NN=ConvNetTorchIndividal_POPSIZE=100_GEN=1000_PMUTATION_0"
+            ".2_PCROSSOVER_0.8.npy")
 
     for _ in range(100):
         env.render()

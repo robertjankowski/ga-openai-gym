@@ -114,12 +114,11 @@ def roulette_wheel_selection(population: List[Individual]):
 
 
 def statistics(population: List[Individual]):
-    print(population)
     population_fitness = [individual.fitness for individual in population]
     return np.mean(population_fitness), np.min(population_fitness), np.max(population_fitness)
 
 
-class MLPTorchIndividal(Individual):
+class MLPTorchIndividual(Individual):
     def __init__(self, input_size, hidden_size, output_size):
         super().__init__(input_size, hidden_size, output_size)
         self.input_size = input_size
@@ -256,17 +255,17 @@ if __name__ == '__main__':
     env = gym.make('BipedalWalker-v2')
     env.seed(123)
 
-    POPULATION_SIZE = 50
-    MAX_GENERATION = 3000
+    POPULATION_SIZE = 30
+    MAX_GENERATION = 5000
     MUTATION_RATE = 0.1
-    CROSSOVER_RATE = 0.9
+    CROSSOVER_RATE = 0.8
 
-    # 5 - 16 - 12 - 4
+    # 5 - 20 - 12 - 4
     INPUT_SIZE = 5
-    HIDDEN_SIZE = 16
+    HIDDEN_SIZE = 20
     OUTPUT_SIZE = 4
 
-    p = Population(MLPTorchIndividal(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE),
+    p = Population(MLPTorchIndividual(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE),
                    POPULATION_SIZE, MAX_GENERATION, MUTATION_RATE, CROSSOVER_RATE)
     p.run(env, generation, verbose=True, log=True, output_folder='')
 
