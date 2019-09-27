@@ -256,13 +256,13 @@ if __name__ == '__main__':
     env.seed(123)
 
     POPULATION_SIZE = 30
-    MAX_GENERATION = 5000
-    MUTATION_RATE = 0.1
+    MAX_GENERATION = 4000
+    MUTATION_RATE = 0.8
     CROSSOVER_RATE = 0.8
 
-    # 5 - 20 - 12 - 4
-    INPUT_SIZE = 5
-    HIDDEN_SIZE = 20
+    # 10 - 16 - 12 - 4
+    INPUT_SIZE = 10
+    HIDDEN_SIZE = 16
     OUTPUT_SIZE = 4
 
     p = Population(MLPTorchIndividual(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE),
