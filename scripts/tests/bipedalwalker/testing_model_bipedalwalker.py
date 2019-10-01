@@ -18,7 +18,7 @@ def test_mlp():
 
 def test_mlp_torch(input_size=None, is_reduced=False):
     global observation
-    for _ in range(500):
+    for _ in range(1000):
         env.render()
         observation = torch.from_numpy(observation).float()
         if is_reduced:
@@ -69,9 +69,10 @@ if __name__ == '__main__':
     # Model 09-14-2019 NN: 24 - 32 - 12 - 4
     # Model 09-21-2019 NN: 10 - 24 - 12 - 4
     # Model 09-26-2019 NN: 5  - 16 - 12 - 4
-    mlp_torch = MLPTorch(5, 16, 12, OUTPUT_SIZE)
-    mlp_torch.load("../../../models/bipedalwalker/09-26-2019_03-33_NN=MLPTorchIndividal_POPSIZE=50_GEN"
-                   "=3000_PMUTATION_0.1_PCROSSOVER_0.9.npy")
-    test_mlp_torch(input_size=5, is_reduced=True)
+    # Model 09-30-2019 NN: 10 - 16 - 12 - 4
+    mlp_torch = MLPTorch(10, 16, 12, OUTPUT_SIZE)
+    mlp_torch.load("../../../models/bipedalwalker/09-30-2019_20-52_NN=MLPTorchIndividual_POPSIZE=30_GEN"
+                   "=4000_PMUTATION_0.8_PCROSSOVER_0.8.npy")
+    test_mlp_torch(input_size=10, is_reduced=True)
 
     env.close()
