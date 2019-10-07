@@ -266,9 +266,9 @@ if __name__ == '__main__':
 
     POPULATION_SIZE = 50
     MAX_GENERATION = 2000
-    MUTATION_RATE = 0.05
+    MUTATION_RATE = 0.01
     CROSSOVER_RATE = 0.8
-    INVERSION_RATE = 0.05
+    INVERSION_RATE = 0.001
 
     # 10 - 16 - 12 - 4
     INPUT_SIZE = 10
