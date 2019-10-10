@@ -159,7 +159,9 @@ def generation_new(env, old_population, new_population, p_mutation, p_crossover,
         if np.random.rand() < p_crossover:
             child1 = copy.deepcopy(parent1)
             child2 = copy.deepcopy(parent2)
-            child1.weights_biases, child2.weights_biases = crossover_new(parent1.weights_biases, parent2.weights_biases)
+            if np.random.rand() < p_crossover:
+                child1.weights_biases, child2.weights_biases = crossover_new(parent1.weights_biases,
+                                                                             parent2.weights_biases)
 
             child1.update_model()
             child2.update_model()
@@ -205,7 +207,10 @@ class Population:
                 self.save_logs(i, output_folder)
 
             if verbose:
-                self.show_stats(i)
+                max_score = self.show_stats(i)
+                if max_score > 125:
+                    self.save_model_parameters(output_folder)
+                    break
 
             self.update_old_population()
 
@@ -230,6 +235,7 @@ class Population:
         date = self.now()
         stats = f"{date} - generation {n_gen + 1} | mean: {mean}\tmin: {min}\tmax: {max}\n"
         print(stats)
+        return max
 
     def update_old_population(self):
         self.old_population = copy.deepcopy(self.new_population)
