@@ -35,7 +35,6 @@ class MLPTorch(nn.Module, NeuralNetwork):
         output = torch.relu(self.linear1(x))
         output = torch.relu(self.linear2(output))
         output = self.dropout(output)
-        # output = torch.tanh(self.linear3(output))
         output = self.linear3(output)
         return output
 
@@ -79,37 +78,6 @@ class Individual(ABC):
         pass
 
 
-def crossover_new(parent1_weights_biases: np.array, parent2_weights_biases: np.array):
-    """
-    Crossover is calculated only if random.randn() < p
-    """
-    position = np.random.randint(0, parent1_weights_biases.shape[0])
-    child1_weights_biases = np.copy(parent1_weights_biases)
-    child2_weights_biases = np.copy(parent2_weights_biases)
-
-    child1_weights_biases[position:], child2_weights_biases[position:] = \
-        child2_weights_biases[position:], child1_weights_biases[position:]
-    return child1_weights_biases, child2_weights_biases
-
-
-def inversion(child_weights_biases: np.array):
-    return child_weights_biases[::-1]
-
-
-def mutation_gen(child_weights_biases: np.array, p_mutation):
-    """
-    Given `p_mutation` change each value in child_weights_biases
-    """
-    for i in range(len(child_weights_biases)):
-        if np.random.rand() < p_mutation:
-            child_weights_biases[i] = np.random.uniform(-100, 100)
-
-
-def statistics(population: List[Individual]):
-    population_fitness = [individual.fitness for individual in population]
-    return np.mean(population_fitness), np.min(population_fitness), np.max(population_fitness)
-
-
 class MLPTorchIndividual(Individual):
     def __init__(self, input_size, hidden_size, output_size):
         super().__init__(input_size, hidden_size, output_size)
@@ -135,50 +103,82 @@ class MLPTorchIndividual(Individual):
         return fitness, self.nn.get_weights_biases()
 
 
-def generation_new(env, old_population, new_population, p_mutation, p_crossover, p_inversion):
-    """
-    1. Tournament selection to create new population 1
-    2. Crossover to new population 2 (because sometimes it doesn't happen)
-    3. Mutation of each gen (single value in genotype)
-    4. Inversion of genotype
-    """
-    import random
-    pop_size = len(old_population)
-    new_pop = []
+def inversion(child_weights_biases: np.array):
+    return np.flip(child_weights_biases).copy()
 
-    # 1.
-    for i in range(pop_size):
-        indv1 = random.choice(old_population)
-        indv2 = random.choice(old_population)
-        new_pop.append(indv1 if indv1.fitness > indv2.fitness else indv2)
 
-    # 2.
-    while len(new_population) < pop_size:
-        parent1 = random.choice(new_pop)
-        parent2 = random.choice(new_pop)
+def statistics(population: List[Individual]):
+    population_fitness = [individual.fitness for individual in population]
+    return np.mean(population_fitness), np.min(population_fitness), np.max(population_fitness)
+
+def ranking_selection(population: List[Individual]) -> Tuple[Individual, Individual]:
+    sorted_population = sorted(population, key=lambda individual: individual.fitness, reverse=True)
+    parent1, parent2 = sorted_population[:2]
+    return parent1, parent2
+
+
+def blx_alpha(parent1_weights_biases: np.array, parent2_weights_biases: np.array, alpha=0.1):
+    """
+    Crossover:
+     https://ai.stackexchange.com/questions/3428/mutation-and-crossover-in-a-genetic-algorithm-with-real-numbers/6323#6323
+    random number from in [min - range * α, max + range * α]
+    """
+    child1_weights_biases = np.copy(parent1_weights_biases)
+    child2_weights_biases = np.copy(parent2_weights_biases)
+    for i in range(len(parent1_weights_biases)):
+        xi = parent1_weights_biases[i]
+        yi = parent2_weights_biases[i]
+        min_gen = np.min([xi, yi])
+        max_gen = np.max([xi, yi])
+        range_gen = np.abs(max_gen - min_gen)
+        child1_weights_biases[i] = np.random.uniform(min_gen - range_gen * alpha, max_gen + range_gen * alpha)
+        child2_weights_biases[i] = np.random.uniform(min_gen - range_gen * alpha, max_gen + range_gen * alpha)
+    return child1_weights_biases, child2_weights_biases
+
+
+def mutation(parent_weights_biases: np.array, p: float):
+    child_weight_biases = np.copy(parent_weights_biases)
+    if np.random.rand() < p:
+        position = np.random.randint(0, parent_weights_biases.shape[0])
+        n = np.random.normal(np.mean(child_weight_biases), np.std(child_weight_biases))
+        child_weight_biases[position] = n + np.random.randint(-10, 10)
+    return child_weight_biases
+
+
+def generation(env, old_population, new_population, p_mutation, p_crossover, p_inversion):
+    for i in range(0, len(old_population) - 1, 2):
+        # Selection
+        parent1, parent2 = ranking_selection(old_population)
+
+        # Crossover
+        child1 = copy.deepcopy(parent1)
+        child2 = copy.deepcopy(parent2)
+
         if np.random.rand() < p_crossover:
-            child1 = copy.deepcopy(parent1)
-            child2 = copy.deepcopy(parent2)
-            if np.random.rand() < p_crossover:
-                child1.weights_biases, child2.weights_biases = crossover_new(parent1.weights_biases,
-                                                                             parent2.weights_biases)
+            child1.weights_biases, child2.weights_biases = blx_alpha(parent1.weights_biases,
+                                                                     parent2.weights_biases)
+        # Mutation
+        child1.weights_biases = mutation(child1.weights_biases, p_mutation)
+        child2.weights_biases = mutation(child2.weights_biases, p_mutation)
 
-            child1.update_model()
-            child2.update_model()
-            child1.calculate_fitness(env)
-            child2.calculate_fitness(env)
+        if np.random.randn() < p_inversion:
+            child1.weights_biases = inversion(child1.weights_biases)
+            child2.weights_biases = inversion(child2.weights_biases)
 
-            # 3.
-            mutation_gen(child1.weights_biases, p_mutation)
-            mutation_gen(child2.weights_biases, p_mutation)
+        # Update model weights and biases
+        child1.update_model()
+        child2.update_model()
 
-            # 4.
-            if np.random.rand() < p_inversion:
-                child1.weights_biases = inversion(child1.weights_biases)
-                child2.weights_biases = inversion(child2.weights_biases)
+        child1.calculate_fitness(env)
+        child2.calculate_fitness(env)
 
-            new_population.append(child1)
-            new_population.append(child2)
+        # If children fitness is greater thant parents update population
+        if child1.fitness + child2.fitness > parent1.fitness + parent2.fitness:
+            new_population[i] = child1
+            new_population[i + 1] = child2
+        else:
+            new_population[i] = parent1
+            new_population[i + 1] = parent2
 
 
 class Population:
@@ -189,13 +189,13 @@ class Population:
         self.p_crossover = p_crossover
         self.p_inversion = p_inversion
         self.old_population = [individual for _ in range(pop_size)]
-        self.new_population = []
+        self.new_population = [None] * pop_size
 
     def run(self, env, run_generation: Callable, verbose=False, log=False, output_folder=None):
         for i in range(self.max_generation):
             [p.calculate_fitness(env) for p in self.old_population]
 
-            self.new_population = []
+            # self.new_population = []
             run_generation(env,
                            self.old_population,
                            self.new_population,
@@ -272,8 +272,8 @@ if __name__ == '__main__':
 
     POPULATION_SIZE = 50
     MAX_GENERATION = 2000
-    MUTATION_RATE = 0.01
-    CROSSOVER_RATE = 0.8
+    MUTATION_RATE = 0.6
+    CROSSOVER_RATE = 0.9
     INVERSION_RATE = 0.001
 
     # 10 - 16 - 12 - 4
@@ -287,6 +287,6 @@ if __name__ == '__main__':
                    MUTATION_RATE,
                    CROSSOVER_RATE,
                    INVERSION_RATE)
-    p.run(env, generation_new, verbose=True, log=True, output_folder='')
+    p.run(env, generation, verbose=True, log=True, output_folder='')
 
     env.close()
