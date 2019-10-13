@@ -38,6 +38,32 @@ def crossover(parent1_weights_biases: np.array, parent2_weights_biases: np.array
     return child1_weights_biases, child2_weights_biases
 
 
+def crossover_new(parent1_weights_biases: np.array, parent2_weights_biases: np.array):
+    """
+    Crossover is calculated only if random.randn() < p
+    """
+    position = np.random.randint(0, parent1_weights_biases.shape[0])
+    child1_weights_biases = np.copy(parent1_weights_biases)
+    child2_weights_biases = np.copy(parent2_weights_biases)
+
+    child1_weights_biases[position:], child2_weights_biases[position:] = \
+        child2_weights_biases[position:], child1_weights_biases[position:]
+    return child1_weights_biases, child2_weights_biases
+
+
+def inversion(child_weights_biases: np.array):
+    return child_weights_biases[::-1]
+
+
+def mutation_gen(child_weights_biases: np.array, p_mutation):
+    """
+    Given `p_mutation` change each value in child_weights_biases
+    """
+    for i in range(len(child_weights_biases)):
+        if np.random.rand() < p_mutation:
+            child_weights_biases[i] = np.random.uniform(-100, 100)
+
+
 def mutation(parent_weights_biases: np.array, p: float):
     child_weight_biases = np.copy(parent_weights_biases)
     if np.random.rand() < p:

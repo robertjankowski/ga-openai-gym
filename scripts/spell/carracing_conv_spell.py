@@ -141,7 +141,7 @@ class ConvNetTorchIndividal(Individual):
     def get_model(self, input_size, hidden_size, output_size) -> NeuralNetwork:
         return ConvNet()
 
-    def run_single(self, env, n_episodes=300, render=False) -> Tuple[float, np.array]:
+    def run_single(self, env, n_episodes=1000, render=False) -> Tuple[float, np.array]:
         obs = env.reset()
         fitness = 0
         for episode in range(n_episodes):
@@ -270,9 +270,9 @@ if __name__ == '__main__':
     env = gym.make('CarRacing-v0')
     env.seed(123)
 
-    POPULATION_SIZE = 100
-    MAX_GENERATION = 1000
-    MUTATION_RATE = 0.2
+    POPULATION_SIZE = 50
+    MAX_GENERATION = 2000
+    MUTATION_RATE = 0.4
     CROSSOVER_RATE = 0.8
 
     p = Population(ConvNetTorchIndividal(None, None, None), POPULATION_SIZE, MAX_GENERATION,

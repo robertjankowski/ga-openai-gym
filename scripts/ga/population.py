@@ -9,20 +9,27 @@ from util.timing import timing
 
 
 class Population:
-    def __init__(self, individual, pop_size, max_generation, p_mutation, p_crossover):
+    def __init__(self, individual, pop_size, max_generation, p_mutation, p_crossover, p_inversion):
         self.pop_size = pop_size
         self.max_generation = max_generation
         self.p_mutation = p_mutation
         self.p_crossover = p_crossover
+        self.p_inversion = p_inversion
         self.old_population = [individual for _ in range(pop_size)]
-        self.new_population = [None] * pop_size
+        self.new_population = []
 
     @timing
     def run(self, env, run_generation: Callable, verbose=False, log=False, output_folder=None):
         for i in range(self.max_generation):
             [p.calculate_fitness(env) for p in self.old_population]
 
-            run_generation(env, self.old_population, self.new_population, self.p_mutation, self.p_crossover)
+            self.new_population = []
+            run_generation(env,
+                           self.old_population,
+                           self.new_population,
+                           self.p_mutation,
+                           self.p_crossover,
+                           self.p_inversion)
 
             if log:
                 self.save_logs(i, output_folder)

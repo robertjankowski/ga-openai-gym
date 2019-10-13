@@ -35,7 +35,7 @@ class MLPTorch(nn.Module, NeuralNetwork):
         output = torch.relu(self.linear1(x))
         output = torch.relu(self.linear2(output))
         output = self.dropout(output)
-        output = torch.tanh(self.linear3(output))
+        output = self.linear3(output)
         return output
 
     def get_weights_biases(self) -> np.array:
@@ -78,49 +78,13 @@ class Individual(ABC):
         pass
 
 
-def crossover(parent1_weights_biases: np.array, parent2_weights_biases: np.array, p: float):
-    position = np.random.randint(0, parent1_weights_biases.shape[0])
-    child1_weights_biases = np.copy(parent1_weights_biases)
-    child2_weights_biases = np.copy(parent2_weights_biases)
-
-    if np.random.rand() < p:
-        child1_weights_biases[position:], child2_weights_biases[position:] = \
-            child2_weights_biases[position:], child1_weights_biases[position:]
-    return child1_weights_biases, child2_weights_biases
-
-
-def mutation(parent_weights_biases: np.array, p: float):
-    child_weight_biases = np.copy(parent_weights_biases)
-    if np.random.rand() < p:
-        position = np.random.randint(0, parent_weights_biases.shape[0])
-        # n = np.random.normal(np.mean(child_weight_biases), np.std(child_weight_biases))
-        n = np.random.uniform(np.min(child_weight_biases), np.max(child_weight_biases))
-        child_weight_biases[position] = n + np.random.randint(-30, 30)
-    return child_weight_biases
-
-
-def ranking_selection(population: List[Individual]) -> Tuple[Individual, Individual]:
-    sorted_population = sorted(population, key=lambda individual: individual.fitness, reverse=True)
-    parent1, parent2 = sorted_population[:2]
-    return parent1, parent2
-
-
-def roulette_wheel_selection(population: List[Individual]):
-    total_fitness = np.sum([individual.fitness for individual in population])
-    selection_probabilities = [individual.fitness / total_fitness for individual in population]
-    pick = np.random.choice(len(population), p=selection_probabilities)
-    return population[pick]
-
-
-def statistics(population: List[Individual]):
-    population_fitness = [individual.fitness for individual in population]
-    return np.mean(population_fitness), np.min(population_fitness), np.max(population_fitness)
-
-
-class MLPTorchIndividal(Individual):
+class MLPTorchIndividual(Individual):
+    def __init__(self, input_size, hidden_size, output_size):
+        super().__init__(input_size, hidden_size, output_size)
+        self.input_size = input_size
 
     def get_model(self, input_size, hidden_size, output_size) -> NeuralNetwork:
-        return MLPTorch(input_size, hidden_size, 12, output_size)
+        return MLPTorch(input_size, hidden_size, 12, output_size, p=0.2)
 
     def run_single(self, env, n_episodes=1000, render=False) -> Tuple[float, np.array]:
         obs = env.reset()
@@ -128,8 +92,7 @@ class MLPTorchIndividal(Individual):
         for episode in range(n_episodes):
             if render:
                 env.render()
-            # Cut only to first 10 observations
-            obs = obs[:10]
+            obs = obs[:self.input_size]
             obs = torch.from_numpy(obs).float()
             action = self.nn.forward(obs)
             action = action.detach().numpy()
@@ -140,23 +103,67 @@ class MLPTorchIndividal(Individual):
         return fitness, self.nn.get_weights_biases()
 
 
-def generation(env, old_population, new_population, p_mutation, p_crossover):
+def inversion(child_weights_biases: np.array):
+    return np.flip(child_weights_biases).copy()
+
+
+def statistics(population: List[Individual]):
+    population_fitness = [individual.fitness for individual in population]
+    return np.mean(population_fitness), np.min(population_fitness), np.max(population_fitness)
+
+def ranking_selection(population: List[Individual]) -> Tuple[Individual, Individual]:
+    sorted_population = sorted(population, key=lambda individual: individual.fitness, reverse=True)
+    parent1, parent2 = sorted_population[:2]
+    return parent1, parent2
+
+
+def blx_alpha(parent1_weights_biases: np.array, parent2_weights_biases: np.array, alpha=0.1):
+    """
+    Crossover:
+     https://ai.stackexchange.com/questions/3428/mutation-and-crossover-in-a-genetic-algorithm-with-real-numbers/6323#6323
+    random number from in [min - range * α, max + range * α]
+    """
+    child1_weights_biases = np.copy(parent1_weights_biases)
+    child2_weights_biases = np.copy(parent2_weights_biases)
+    for i in range(len(parent1_weights_biases)):
+        xi = parent1_weights_biases[i]
+        yi = parent2_weights_biases[i]
+        min_gen = np.min([xi, yi])
+        max_gen = np.max([xi, yi])
+        range_gen = np.abs(max_gen - min_gen)
+        child1_weights_biases[i] = np.random.uniform(min_gen - range_gen * alpha, max_gen + range_gen * alpha)
+        child2_weights_biases[i] = np.random.uniform(min_gen - range_gen * alpha, max_gen + range_gen * alpha)
+    return child1_weights_biases, child2_weights_biases
+
+
+def mutation(parent_weights_biases: np.array, p: float):
+    child_weight_biases = np.copy(parent_weights_biases)
+    if np.random.rand() < p:
+        position = np.random.randint(0, parent_weights_biases.shape[0])
+        n = np.random.normal(np.mean(child_weight_biases), np.std(child_weight_biases))
+        child_weight_biases[position] = n + np.random.randint(-10, 10)
+    return child_weight_biases
+
+
+def generation(env, old_population, new_population, p_mutation, p_crossover, p_inversion):
     for i in range(0, len(old_population) - 1, 2):
         # Selection
-        # parent1 = roulette_wheel_selection(old_population)
-        # parent2 = roulette_wheel_selection(old_population)
         parent1, parent2 = ranking_selection(old_population)
 
         # Crossover
         child1 = copy.deepcopy(parent1)
         child2 = copy.deepcopy(parent2)
 
-        child1.weights_biases, child2.weights_biases = crossover(parent1.weights_biases,
-                                                                 parent2.weights_biases,
-                                                                 p_crossover)
+        if np.random.rand() < p_crossover:
+            child1.weights_biases, child2.weights_biases = blx_alpha(parent1.weights_biases,
+                                                                     parent2.weights_biases)
         # Mutation
         child1.weights_biases = mutation(child1.weights_biases, p_mutation)
         child2.weights_biases = mutation(child2.weights_biases, p_mutation)
+
+        if np.random.randn() < p_inversion:
+            child1.weights_biases = inversion(child1.weights_biases)
+            child2.weights_biases = inversion(child2.weights_biases)
 
         # Update model weights and biases
         child1.update_model()
@@ -175,11 +182,12 @@ def generation(env, old_population, new_population, p_mutation, p_crossover):
 
 
 class Population:
-    def __init__(self, individual, pop_size, max_generation, p_mutation, p_crossover):
+    def __init__(self, individual, pop_size, max_generation, p_mutation, p_crossover, p_inversion):
         self.pop_size = pop_size
         self.max_generation = max_generation
         self.p_mutation = p_mutation
         self.p_crossover = p_crossover
+        self.p_inversion = p_inversion
         self.old_population = [individual for _ in range(pop_size)]
         self.new_population = [None] * pop_size
 
@@ -187,13 +195,22 @@ class Population:
         for i in range(self.max_generation):
             [p.calculate_fitness(env) for p in self.old_population]
 
-            run_generation(env, self.old_population, self.new_population, self.p_mutation, self.p_crossover)
+            # self.new_population = []
+            run_generation(env,
+                           self.old_population,
+                           self.new_population,
+                           self.p_mutation,
+                           self.p_crossover,
+                           self.p_inversion)
 
             if log:
                 self.save_logs(i, output_folder)
 
             if verbose:
-                self.show_stats(i)
+                max_score = self.show_stats(i)
+                if max_score > 125:
+                    self.save_model_parameters(output_folder)
+                    break
 
             self.update_old_population()
 
@@ -218,6 +235,7 @@ class Population:
         date = self.now()
         stats = f"{date} - generation {n_gen + 1} | mean: {mean}\tmin: {min}\tmax: {max}\n"
         print(stats)
+        return max
 
     def update_old_population(self):
         self.old_population = copy.deepcopy(self.new_population)
@@ -252,18 +270,23 @@ if __name__ == '__main__':
     env = gym.make('BipedalWalker-v2')
     env.seed(123)
 
-    POPULATION_SIZE = 50
-    MAX_GENERATION = 2000
-    MUTATION_RATE = 0.3
-    CROSSOVER_RATE = 0.8
+    POPULATION_SIZE = 30
+    MAX_GENERATION = 3000
+    MUTATION_RATE = 0.7
+    CROSSOVER_RATE = 0.95
+    INVERSION_RATE = 1e-4
 
-    # 10 - 24 - 12 - 4
+    # 10 - 16 - 12 - 4
     INPUT_SIZE = 10
-    HIDDEN_SIZE = 24
+    HIDDEN_SIZE = 16
     OUTPUT_SIZE = 4
 
-    p = Population(MLPTorchIndividal(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE),
-                   POPULATION_SIZE, MAX_GENERATION, MUTATION_RATE, CROSSOVER_RATE)
+    p = Population(MLPTorchIndividual(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE),
+                   POPULATION_SIZE,
+                   MAX_GENERATION,
+                   MUTATION_RATE,
+                   CROSSOVER_RATE,
+                   INVERSION_RATE)
     p.run(env, generation, verbose=True, log=True, output_folder='')
 
     env.close()

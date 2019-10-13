@@ -16,13 +16,13 @@ def test_mlp():
             break
 
 
-def test_mlp_torch(is_reduced=False):
+def test_mlp_torch(input_size=None, is_reduced=False):
     global observation
-    for _ in range(500):
+    for _ in range(1000):
         env.render()
         observation = torch.from_numpy(observation).float()
         if is_reduced:
-            observation = observation[:10]
+            observation = observation[:input_size]
         action = mlp_torch.forward(observation)
         action = action.detach().numpy()
         observation, reward, done, _ = env.step(action)
@@ -30,12 +30,14 @@ def test_mlp_torch(is_reduced=False):
             break
 
 
-def test_rnn():
+def test_rnn(is_reduced=False):
     global observation
     hidden = rnn.init_hidden()
     for _ in range(300):
         env.render()
         observation = torch.from_numpy(observation).float()
+        if is_reduced:
+            observation = observation[:10]
         action, hidden = rnn.forward(observation, hidden)
         action = action.detach().numpy()
         # action = np.nan_to_num(action)
@@ -54,9 +56,9 @@ if __name__ == '__main__':
     HIDDEN_SIZE = 16
     OUTPUT_SIZE = 4
 
-    rnn = RNN(INPUT_SIZE, 48, 12, OUTPUT_SIZE)
-    rnn.load('../../../models/bipedalwalker/09-19-2019_19-30_NN=RNNIndividual_POPSIZE=100_GEN=2000_PMUTATION_0'
-             '.1_PCROSSOVER_0.9.npy')
+    rnn = RNN(10, 24, 12, OUTPUT_SIZE)
+    rnn.load('../../../models/bipedalwalker/09-23-2019_07-09_NN=RNNIndividual_POPSIZE=50_GEN=2000_PMUTATION_0'
+             '.3_PCROSSOVER_0.8.npy')
     # test_rnn()
 
     mlp = MLP(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)
@@ -65,10 +67,13 @@ if __name__ == '__main__':
     # test_mlp()
 
     # Model 09-14-2019 NN: 24 - 32 - 12 - 4
-    # Model 90-21-2019 NN: 10 - 24 - 12 - 4
-    mlp_torch = MLPTorch(10, 24, 12, OUTPUT_SIZE)
-    mlp_torch.load("../../../models/bipedalwalker/09-21-2019_22-29_NN=MLPTorchIndividal_POPSIZE=50_GEN"
-                   "=2000_PMUTATION_0.3_PCROSSOVER_0.8.npy")
-    test_mlp_torch(is_reduced=True)
+    # Model 09-21-2019 NN: 10 - 24 - 12 - 4
+    # Model 09-26-2019 NN: 5  - 16 - 12 - 4
+    # Model 09-30-2019 NN: 10 - 16 - 12 - 4
+    mlp_torch = MLPTorch(10, 16, 12, OUTPUT_SIZE)
+    mlp_torch.load("../../../models/bipedalwalker/09-30-2019_20-52_NN=MLPTorchIndividual_POPSIZE=30_GEN"
+                   "=4000_PMUTATION_0.8_PCROSSOVER_0.8.npy")
+    # mlp_torch.load("../../bipedalwalker/10-07-2019_18-22_NN=MLPTorchIndividal_POPSIZE=10_GEN=20_PMUTATION_0.2_PCROSSOVER_0.8.npy")
+    test_mlp_torch(input_size=10, is_reduced=True)
 
     env.close()
