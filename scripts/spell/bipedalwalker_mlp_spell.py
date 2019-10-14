@@ -265,10 +265,10 @@ if __name__ == '__main__':
     env.seed(123)
 
     POPULATION_SIZE = 50
-    MAX_GENERATION = 3000
-    MUTATION_RATE = 0.4
-    CROSSOVER_RATE = 0.8
-    INVERSION_RATE = 1e-5
+    MAX_GENERATION = 5000
+    MUTATION_RATE = 0.1
+    CROSSOVER_RATE = 0.7
+    INVERSION_RATE = 1e-2
 
     # 10 - 16 - 12 - 4
     INPUT_SIZE = 10
