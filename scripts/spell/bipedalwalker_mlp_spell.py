@@ -111,6 +111,7 @@ def statistics(population: List[Individual]):
     population_fitness = [individual.fitness for individual in population]
     return np.mean(population_fitness), np.min(population_fitness), np.max(population_fitness)
 
+
 def ranking_selection(population: List[Individual]) -> Tuple[Individual, Individual]:
     sorted_population = sorted(population, key=lambda individual: individual.fitness, reverse=True)
     parent1, parent2 = sorted_population[:2]
@@ -208,16 +209,12 @@ class Population:
 
             if verbose:
                 max_score = self.show_stats(i)
-                if max_score > 125:
-                    self.save_model_parameters(output_folder)
-                    break
+                if max_score > 80:
+                    self.save_model_parameters(output_folder, i, max_score)
 
             self.update_old_population()
 
-            # TODO:
-            #  save model every 1 / 10 of max generation ?
-
-        self.save_model_parameters(output_folder)
+        self.save_model_parameters(output_folder, self.max_generation, '')
 
     def save_logs(self, n_gen, output_folder):
         """
@@ -240,10 +237,10 @@ class Population:
     def update_old_population(self):
         self.old_population = copy.deepcopy(self.new_population)
 
-    def save_model_parameters(self, output_folder):
+    def save_model_parameters(self, output_folder, iteration, max_score):
         best_model = self.get_best_model_parameters()
         date = self.now()
-        file_name = self.get_file_name(date) + '.npy'
+        file_name = self.get_file_name(date) + f'_I={iteration}_SCORE={max_score}.npy'
         np.save(output_folder + file_name, best_model)
 
     def get_best_model_parameters(self) -> np.array:
@@ -270,11 +267,11 @@ if __name__ == '__main__':
     env = gym.make('BipedalWalker-v2')
     env.seed(123)
 
-    POPULATION_SIZE = 30
-    MAX_GENERATION = 3000
-    MUTATION_RATE = 0.7
-    CROSSOVER_RATE = 0.95
-    INVERSION_RATE = 1e-4
+    POPULATION_SIZE = 50
+    MAX_GENERATION = 6000
+    MUTATION_RATE = 0.4
+    CROSSOVER_RATE = 0.7
+    INVERSION_RATE = 1e-5
 
     # 10 - 16 - 12 - 4
     INPUT_SIZE = 10
