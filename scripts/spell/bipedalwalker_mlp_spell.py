@@ -208,10 +208,11 @@ class Population:
             if verbose:
                 max_score = self.show_stats(i)
                 if max_score > 80:
-                    self.save_model_parameters(output_folder, i)
+                    self.save_model_parameters(output_folder, i, max_score)
+
             self.update_old_population()
 
-        self.save_model_parameters(output_folder, self.max_generation)
+        self.save_model_parameters(output_folder, self.max_generation, '')
 
     def save_logs(self, n_gen, output_folder):
         """
@@ -234,10 +235,10 @@ class Population:
     def update_old_population(self):
         self.old_population = copy.deepcopy(self.new_population)
 
-    def save_model_parameters(self, output_folder, model_number):
+    def save_model_parameters(self, output_folder, iteration, max_score):
         best_model = self.get_best_model_parameters()
         date = self.now()
-        file_name = self.get_file_name(date) + '_I=' + model_number + '.npy'
+        file_name = self.get_file_name(date) + f'_I={iteration}_SCORE={max_score}.npy'
         np.save(output_folder + file_name, best_model)
 
     def get_best_model_parameters(self) -> np.array:
@@ -264,11 +265,11 @@ if __name__ == '__main__':
     env = gym.make('BipedalWalker-v2')
     env.seed(123)
 
-    POPULATION_SIZE = 50
-    MAX_GENERATION = 5000
-    MUTATION_RATE = 0.1
-    CROSSOVER_RATE = 0.7
-    INVERSION_RATE = 1e-2
+    POPULATION_SIZE = 30
+    MAX_GENERATION = 6000
+    MUTATION_RATE = 0.3
+    CROSSOVER_RATE = 0.85
+    INVERSION_RATE = 1e-20
 
     # 10 - 16 - 12 - 4
     INPUT_SIZE = 10
