@@ -56,7 +56,7 @@ def get_fitness(n_episodes):
 2. Calculate fitness function for each individual.
 3. Weights and biases are transformed into a single vector.
 4. Selection (elitism selection or roulette wheel selection)
-5. Crossover 
+5. Crossover (simple crossover or [BLX-alpha](http://www.tomaszgwiazda.com/blendX.htm))
 6. Mutation
 7. If child fitness is greater than parent fitness score the new population is updated
 8. Go to 2.
