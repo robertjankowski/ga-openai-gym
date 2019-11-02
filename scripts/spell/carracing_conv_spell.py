@@ -211,14 +211,13 @@ class Population:
                 self.save_logs(i, output_folder)
 
             if verbose:
-                self.show_stats(i)
+                max_score = self.show_stats(i)
+                if max_score > 400:
+                    self.save_model_parameters(output_folder, i, max_score)
 
             self.update_old_population()
 
-            # TODO:
-            #  save model every 1 / 10 of max generation ?
-
-        self.save_model_parameters(output_folder)
+        self.save_model_parameters(output_folder, self.max_generation, '')
 
     def save_logs(self, n_gen, output_folder):
         """
@@ -236,14 +235,15 @@ class Population:
         date = self.now()
         stats = f"{date} - generation {n_gen + 1} | mean: {mean}\tmin: {min}\tmax: {max}\n"
         print(stats)
+        return max
 
     def update_old_population(self):
         self.old_population = copy.deepcopy(self.new_population)
 
-    def save_model_parameters(self, output_folder):
+    def save_model_parameters(self, output_folder, iteration, max_score):
         best_model = self.get_best_model_parameters()
         date = self.now()
-        file_name = self.get_file_name(date) + '.npy'
+        file_name = self.get_file_name(date) + f'_I={iteration}_SCORE={max_score}.npy'
         np.save(output_folder + file_name, best_model)
 
     def get_best_model_parameters(self) -> np.array:
@@ -270,10 +270,10 @@ if __name__ == '__main__':
     env = gym.make('CarRacing-v0')
     env.seed(123)
 
-    POPULATION_SIZE = 50
-    MAX_GENERATION = 2000
-    MUTATION_RATE = 0.4
-    CROSSOVER_RATE = 0.8
+    POPULATION_SIZE = 1000
+    MAX_GENERATION = 30
+    MUTATION_RATE = 0.5
+    CROSSOVER_RATE = 0.85
 
     p = Population(ConvNetTorchIndividal(None, None, None), POPULATION_SIZE, MAX_GENERATION,
                    MUTATION_RATE, CROSSOVER_RATE)
