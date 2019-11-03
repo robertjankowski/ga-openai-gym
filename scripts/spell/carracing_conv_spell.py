@@ -270,8 +270,8 @@ if __name__ == '__main__':
     env = gym.make('CarRacing-v0')
     env.seed(123)
 
-    POPULATION_SIZE = 1000
-    MAX_GENERATION = 30
+    POPULATION_SIZE = 30
+    MAX_GENERATION = 1000
     MUTATION_RATE = 0.5
     CROSSOVER_RATE = 0.85
 
