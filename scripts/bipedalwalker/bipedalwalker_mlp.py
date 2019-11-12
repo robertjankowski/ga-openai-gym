@@ -31,7 +31,7 @@ class MLPIndividual(Individual):
         return fitness, self.nn.get_weights_biases()
 
 
-class MLPTorchIndividal(Individual):
+class MLPTorchIndividual(Individual):
 
     def get_model(self, input_size, hidden_size, output_size) -> NeuralNetwork:
         return MLPTorch(input_size, hidden_size, 12, output_size)
@@ -145,7 +145,7 @@ if __name__ == '__main__':
     HIDDEN_SIZE = 16
     OUTPUT_SIZE = 4
 
-    p = Population(MLPTorchIndividal(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE),
+    p = Population(MLPTorchIndividual(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE),
                    POPULATION_SIZE,
                    MAX_GENERATION,
                    MUTATION_RATE,

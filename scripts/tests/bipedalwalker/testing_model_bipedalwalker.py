@@ -73,7 +73,6 @@ if __name__ == '__main__':
     mlp_torch = MLPTorch(10, 16, 12, OUTPUT_SIZE)
     mlp_torch.load("../../../models/bipedalwalker/10-21-2019_02-57_NN=MLPTorchIndividual_POPSIZE=30_GEN"
                    "=6000_PMUTATION_0.6_PCROSSOVER_0.85_I=2432_SCORE=135.05759182155143.npy")
-    # mlp_torch.load("../../bipedalwalker/10-07-2019_18-22_NN=MLPTorchIndividal_POPSIZE=10_GEN=20_PMUTATION_0.2_PCROSSOVER_0.8.npy")
     test_mlp_torch(input_size=10, is_reduced=True)
 
     env.close()

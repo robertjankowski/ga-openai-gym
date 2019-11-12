@@ -1,13 +1,11 @@
 from collections import OrderedDict
 
 import numpy as np
-from numpy.testing._private.parameterized import param
+import torch
+import torch.nn as nn
 
 from nn.activation_function import ActivationFunctions
 from nn.base_nn import NeuralNetwork
-
-import torch
-import torch.nn as nn
 
 ReLU = ActivationFunctions.ReLU
 Sigmoid = ActivationFunctions.Sigmoid
