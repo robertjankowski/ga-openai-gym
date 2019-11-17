@@ -270,10 +270,10 @@ if __name__ == '__main__':
     env = gym.make('CarRacing-v0')
     env.seed(123)
 
-    POPULATION_SIZE = 30
-    MAX_GENERATION = 1000
-    MUTATION_RATE = 0.5
-    CROSSOVER_RATE = 0.85
+    POPULATION_SIZE = 50
+    MAX_GENERATION = 2000
+    MUTATION_RATE = 0.4
+    CROSSOVER_RATE = 0.8
 
     p = Population(ConvNetTorchIndividal(None, None, None), POPULATION_SIZE, MAX_GENERATION,
                    MUTATION_RATE, CROSSOVER_RATE)
