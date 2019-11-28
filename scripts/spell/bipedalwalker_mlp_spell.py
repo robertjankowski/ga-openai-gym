@@ -262,7 +262,7 @@ class Population:
 
 
 if __name__ == '__main__':
-    env = gym.make('BipedalWalker-v2')
+    env = gym.make('BipedalWalkerHardcore-v2')
     env.seed(123)
 
     POPULATION_SIZE = 30
