@@ -48,11 +48,7 @@ def test_rnn(is_reduced=False):
 
 if __name__ == '__main__':
     env = gym.make('BipedalWalkerHardcore-v2')
-<<<<<<< HEAD
     env.seed(123)
-=======
-    env.seed(10)
->>>>>>> 2c70544fab4042e7ac1c3f97c2f2ad86d37a41df
     # env = gym.wrappers.Monitor(env, 'cartpole', video_callable=lambda episode_id: True, force=True)
     observation = env.reset()
 

@@ -7,6 +7,8 @@ from nn.conv import ConvNet
 if __name__ == '__main__':
     env = gym.make('CarRacing-v0')
     env.seed(123)
+    #env = gym.wrappers.Monitor(env, 'carracing_video', video_callable=lambda episode_id: True, force=True)
+
     obs = env.reset()
     nn = ConvNet()
     nn.load("../../../models/carracing/12-17-2019_12-14_NN=ConvNetTorchIndividal_POPSIZE=50_GEN=2000_PMUTATION_0"
