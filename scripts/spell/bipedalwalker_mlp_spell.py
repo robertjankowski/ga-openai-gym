@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from collections import OrderedDict
 from datetime import datetime
 from typing import List, Tuple, Callable
+import sys
 
 import gym
 import numpy as np
@@ -79,12 +80,14 @@ class Individual(ABC):
 
 
 class MLPTorchIndividual(Individual):
-    def __init__(self, input_size, hidden_size, output_size):
+    def __init__(self, input_size, hidden_size, output_size, model):
+        self.model = model
         super().__init__(input_size, hidden_size, output_size)
         self.input_size = input_size
 
     def get_model(self, input_size, hidden_size, output_size) -> NeuralNetwork:
-        return MLPTorch(input_size, hidden_size, 12, output_size, p=0.2)
+        # return MLPTorch(input_size, hidden_size, 12, output_size, p=0.2)
+        return self.model
 
     def run_single(self, env, n_episodes=1000, render=False) -> Tuple[float, np.array]:
         obs = env.reset()
@@ -276,7 +279,11 @@ if __name__ == '__main__':
     HIDDEN_SIZE = 16
     OUTPUT_SIZE = 4
 
-    p = Population(MLPTorchIndividual(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE),
+    modelName = sys.argv[1]
+    mlp_torch = MLPTorch(INPUT_SIZE, HIDDEN_SIZE, 12, OUTPUT_SIZE)
+    mlp_torch.load(modelName)
+
+    p = Population(MLPTorchIndividual(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE, mlp_torch),
                    POPULATION_SIZE,
                    MAX_GENERATION,
                    MUTATION_RATE,
