@@ -6,12 +6,15 @@ from nn.conv import ConvNet
 
 if __name__ == '__main__':
     env = gym.make('CarRacing-v0')
+    env.seed(123)
+    #env = gym.wrappers.Monitor(env, 'carracing_video', video_callable=lambda episode_id: True, force=True)
+
     obs = env.reset()
     nn = ConvNet()
-    nn.load("../../../models/carracing/09-26-2019_16-44_NN=ConvNetTorchIndividal_POPSIZE=100_GEN=1000_PMUTATION_0"
-            ".2_PCROSSOVER_0.8.npy")
+    nn.load("../../../models/carracing/12-17-2019_12-14_NN=ConvNetTorchIndividal_POPSIZE=50_GEN=2000_PMUTATION_0"
+            ".4_PCROSSOVER_0.8_I=1495_SCORE=426.3157894736778.npy")
 
-    for _ in range(100):
+    for _ in range(500):
         env.render()
         obs = torch.from_numpy(np.flip(obs, axis=0).copy()).float()
         obs = obs.reshape((-1, 3, 96, 96))
