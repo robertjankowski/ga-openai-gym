@@ -92,24 +92,24 @@ def get_fitness(n_episodes):
 
 <table>
   <tr>
-    <th>Info</th>
-    <th>Architecture of neural network</th>
+	  <th><i>Info</i></th>
+	  <th><i>Architecture of neural network</i></th>
   </tr>
   <tr>
-    <td>Environment (continuous)<br><br> - 4 observations (Cart Position and Velocity, Pole Angle and Velocity at Tip)</td>
-    <td rowspan="5"> <img src="docs/cartpole/mlp_cartpole_architecture.svg"/> </td>
+	  <td><b>Environment</b> (continuous)<br><br> - 4 observations (Cart Position and Velocity, Pole Angle and Velocity at Tip)</td>
+    <td rowspan="5"> <img src="docs/cartpole/09-09-2019_17-37_POPSIZE=100_GEN=20_PMUTATION_0.4_PCROSSOVER_0.9_neural_network.svg" width="120%" /> </td>
   </tr>
   <tr>
-    <td>Actions (discrete):<br><br> - Push a cart to the left or right</td>
+	  <td><b>Actions</b> (discrete):<br><br> - Push a cart to the left or right</td>
   </tr>
   <tr>
-    <td>Reward <br><br>- 1 for every step taken, including the termination step<br></td>
+	  <td><b>Reward</b> <br><br>- 1 for every step taken, including the termination step<br></td>
   </tr>
   <tr>
-    <td>Episode Termination<br><br> - Pole Angle is more than ±12°<br> - Cart Position is more than ±2.4 (center of the cart reaches the edge of the display)<br> - Episode length is greater than 200</td>
+	  <td><b>Episode Termination</b><br><br> - Pole Angle is more than ±12°<br> - Cart Position is more than ±2.4 (center of the cart reaches the edge of the display)<br> - Episode length is greater than 200</td>
   </tr>
   <tr>
-    <td>Genetic algorithm parameters:<br> - population size: 100<br> - generation: 20<br> - mutation rate: 0.4<br> - crossover rate: 0.9<br></td>
+	  <td><b>Genetic algorithm parameters</b><br> - population size: 100<br> - generation: 20<br> - mutation rate: 0.4<br> - crossover rate: 0.9<br></td>
   </tr>
 </table>
 
