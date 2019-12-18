@@ -63,6 +63,30 @@ def get_fitness(n_episodes):
 7. If children fitness is greater than parents fitness score the new population is updated
 8. Go to 2.
 
+## [CarRacing-v0](https://gym.openai.com/envs/CarRacing-v0/)
+
+<table>
+  <tr>
+	  <th><i>Info</i></th>
+	  <th><i>Architecture of neural network</i></th>
+  </tr>
+  <tr>
+	  <td><b>Observation space</b>:<br><br>- RGB 96x96 pixels frame (with all the control bar on the bottom of the screen)</td>
+    <td rowspan="4"><img src="docs/carracing/12-17-2019_12-14_NN=ConvNetTorchIndividal_POPSIZE=50_GEN=2000_PMUTATION_0.4_PCROSSOVER_0.8_I=1495_SCORE=426_neural_network.svg" height="650"/></td>
+  </tr>
+  <tr>
+	  <td><b>Actions</b>(continues):<br><br>- sterring angle (s = [-1, 1])<br>- throttle (t = [0, 1])<br>- brake (b = [0, 1])</td>
+  </tr>
+  <tr>
+	  <td><b>Reward</b><br><br>- -0.1 every frame and +1000/N for every track tile visited, 
+		    <br>   where N is the total number of tiles in track<br></td>
+  </tr>
+  <tr>
+	  <td><b>Genetic algorithm parameters</b><br>- population size: 50 <br>- generation: 2000 <br>- mutation rate: 0.4 <br>- crossover rate: 0.8</td>
+  </tr>
+</table>
+
+
 ## [BipedalWalker-v2](https://github.com/openai/gym/wiki/BipedalWalker-v2)
               
 <table>
