@@ -10,7 +10,7 @@
 
  | Random Cartpole-v0 | GA Cartpole-v0 | 
 | ------------- |:-------------:|
-| ![cartpole-random](docs/cartpole/cartpole_random.gif) | ![cartpole-random](docs/cartpole/cartpole_nn.gif) | $1600 |
+| ![cartpole-random](docs/cartpole/cartpole_random.gif) | ![cartpole-random](docs/cartpole/cartpole_nn.gif) |
 
 
 ### Run and test
@@ -63,64 +63,57 @@ def get_fitness(n_episodes):
 7. If children fitness is greater than parents fitness score the new population is updated
 8. Go to 2.
 
-| ![mlp-cartpole](docs/bipedalwalker/12-05-2019_10-01_NN=MLPTorchIndividual_POPSIZE=30_GEN=6000_PMUTATION_0.6_PCROSSOVER_0.85_neural_network.png) |
-|:---:| 
-| Architecture of neural network used in BipedalWalker-v2 problem |
-
 ## [BipedalWalker-v2](https://github.com/openai/gym/wiki/BipedalWalker-v2)
-
-**Environment** (continuous)
- - 24 observations (hull_angle, vel_x, vel_y and many more)
-
-**Actions** (continues):
- - Hip_1 and Hip_2 (Torque / Velocity)
- - Knee_1 and Knee_2 (Torque / Velocity)
- 
-**Reward** is given for moving forward, total 300+ points up to the far end. 
-If the robot falls, it gets -100
-
-**Episode Termination**
-The episode ends when the robot body touches ground or the robot reaches far right side of the environment
-
-**Neural network architecture**: simple MLP
- - Input size: 10
- - One hidden layer, size: 24
- - Second hidden layer, size: 12
- - Output layer with `tanh` activation function, size: 4
- 
-**Genetic algorithm parameters**:
- - population size: 50
- - generation: 2000
- - mutation rate: 0.3
- - crossover rate: 0.9
-
-
+              
+<table>
+  <tr>
+	  <th><i>Info</i></th>
+	  <th><i>Architecture of neural network</i></th>
+  </tr>
+  <tr>
+    <td><b>Environment</b> (continuous) <br><br>- 24 observations (hull_angle, vel_x, vel_y and many more)</td>
+    <td rowspan="5"><img src="docs/bipedalwalker/12-05-2019_10-01_NN=MLPTorchIndividual_POPSIZE=30_GEN=6000_PMUTATION_0.6_PCROSSOVER_0.85_neural_network.svg" height="700"/></td>
+  </tr>
+  <tr>
+    <td><b>Actions</b> (continues): <br><br>- Hip_1 and Hip_2 (Torque / Velocity) <br>- Knee_1 and Knee_2 (Torque / Velocity)</td>
+  </tr>
+  <tr>
+	  <td><b>A reward</b> is given for moving forward, total of 300+ points up to the far end. <br>If the robot falls, it gets -100</td>
+  </tr>
+  <tr>
+    <td><b>Episode Termination</b><br> The episode ends when the robot body touches ground or <br> the robot reaches the far right side of the environment</td>
+  </tr>
+  <tr>
+    <td><b>Genetic algorithm parameters</b><br>- population size: 50 <br>- generation: 2000 <br>- mutation rate: 0.3 <br>- crossover rate: 0.9<br></td>
+  </tr>
+</table>
+	      
 ## [Cartpole-v0](https://github.com/openai/gym/wiki/CartPole-v0)
 
-**Environment** (continuous)
- - 4 observations (Cart Position and Velocity, Pole Angle and Velocity at Tip)
+<table>
+  <tr>
+    <th>Info</th>
+    <th>Architecture of neural network</th>
+  </tr>
+  <tr>
+    <td>Environment (continuous)<br><br> - 4 observations (Cart Position and Velocity, Pole Angle and Velocity at Tip)</td>
+    <td rowspan="5"> <img src="docs/cartpole/mlp_cartpole_architecture.svg"/> </td>
+  </tr>
+  <tr>
+    <td>Actions (discrete):<br><br> - Push a cart to the left or right</td>
+  </tr>
+  <tr>
+    <td>Reward <br><br>- 1 for every step taken, including the termination step<br></td>
+  </tr>
+  <tr>
+    <td>Episode Termination<br><br> - Pole Angle is more than ±12°<br> - Cart Position is more than ±2.4 (center of the cart reaches the edge of the display)<br> - Episode length is greater than 200</td>
+  </tr>
+  <tr>
+    <td>Genetic algorithm parameters:<br> - population size: 100<br> - generation: 20<br> - mutation rate: 0.4<br> - crossover rate: 0.9<br></td>
+  </tr>
+</table>
 
-**Actions** (discrete):
- - Push cart to the left or right
 
-**Reward**: 1 for every step taken, including the termination step
-
-**Episode Termination**
- - Pole Angle is more than ±12°
- - Cart Position is more than ±2.4 (center of the cart reaches the edge of the display)
- - Episode length is greater than 200
-
-**Neural network architecture**: simple MLP
- - Input size: 4
- - One hidden layer, size: 2
- - Output layer with Softmax activation function, size: 1
- 
-**Genetic algorithm parameters**:
- - population size: 100
- - generation: 20
- - mutation rate: 0.4
- - crossover rate: 0.9
- 
 ***
 
 ### Run on [**Spell**](https://web.spell.run/robjan/)
