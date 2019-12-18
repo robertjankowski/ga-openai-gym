@@ -14,13 +14,12 @@
 
 
 ### Run and test
-Pretrained models are in `models`. Testing scripts are in `scripts/tests`.
-E.g. for BipedalWalker-2 is possible to test different architecture of neural networks like simple one layer or two layers perceptron or recurrent neural networks.
+Pretrained models are located in `models` folder. Testing scripts are in `scripts/tests`.
+E.g. for BipedalWalker-2 there are models with different architecture of NN like simple one layer or two layers perceptron (just load appropriate model).
 
 ```shell script
 python scripts/tests/bipedalwalker/testing_model_bipedalwalker.py
 ```
-
 
 ### Explanation
 
@@ -53,18 +52,18 @@ def get_fitness(n_episodes):
 | Mean value of fitness function for BipedalWalker-v2 problem |
 
 
-##### Schema
+##### Algorithm
 
 1. Create initial population of neural networks. At first the weights and biases are randomly initialized.
 2. Calculate fitness function for each individual.
 3. Weights and biases are transformed into a single vector.
 4. Selection (elitism selection or roulette wheel selection)
 5. Crossover (simple crossover or [BLX-alpha](http://www.tomaszgwiazda.com/blendX.htm))
-6. Mutation
-7. If child fitness is greater than parent fitness score the new population is updated
+6. Mutation (change value of one gen in NN from normal distribution)
+7. If children fitness is greater than parents fitness score the new population is updated
 8. Go to 2.
 
-| ![mlp-cartpole](docs/bipedalwalker/mlp.png) |
+| ![mlp-cartpole](docs/bipedalwalker/12-05-2019_10-01_NN=MLPTorchIndividual_POPSIZE=30_GEN=6000_PMUTATION_0.6_PCROSSOVER_0.85_neural_network.png) |
 |:---:| 
 | Architecture of neural network used in BipedalWalker-v2 problem |
 
@@ -124,11 +123,11 @@ The episode ends when the robot body touches ground or the robot reaches far rig
  
 ***
 
-Run on [**Spell**](https://web.spell.run/robjan/)
+### Run on [**Spell**](https://web.spell.run/robjan/)
 ```shell script
 spell run "python scripts/bipedalwalker.py" --pip-req requirements.txt
 ```
-For car racing (need to open virual display server)
+For _Carracing_ (need to open virtual display server)
 ```shell script
 spell run --apt python-dev --apt cmake --apt zlib1g-dev --apt libjpeg-dev \
 	--apt xvfb --apt ffmpeg --apt xorg-dev --apt python-opengl --apt libboost-all-dev \
