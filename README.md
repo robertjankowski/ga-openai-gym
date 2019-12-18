@@ -1,7 +1,7 @@
 ## Using genetic algorithms to train neural network in OpenAI gym environment. 
 ***
 | Random Carracing | GA Carracing |
-| -------------- |: ------------: |
+| ------------- |:-------------:|
 | ![ga-carracing](docs/carracing/carracing_example_random.gif) | ![ga-carracing](docs/carracing/carracing_example_gen=1495_C=0.8_M=0.4_P=50_S=426.gif) |
 
  | Random BipedalWalker-v2 | GA BipedalWalker-v2 | 
