@@ -10,17 +10,16 @@
 
  | Random Cartpole-v0 | GA Cartpole-v0 | 
 | ------------- |:-------------:|
-| ![cartpole-random](docs/cartpole/cartpole_random.gif) | ![cartpole-random](docs/cartpole/cartpole_nn.gif) | $1600 |
+| ![cartpole-random](docs/cartpole/cartpole_random.gif) | ![cartpole-random](docs/cartpole/cartpole_nn.gif) |
 
 
 ### Run and test
-Pretrained models are in `models`. Testing scripts are in `scripts/tests`.
-E.g. for BipedalWalker-2 is possible to test different architecture of neural networks like simple one layer or two layers perceptron or recurrent neural networks.
+Pretrained models are located in `models` folder. Testing scripts are in `scripts/tests`.
+E.g. for BipedalWalker-2 there are models with different architecture of NN like simple one layer or two layers perceptron (just load appropriate model).
 
 ```shell script
 python scripts/tests/bipedalwalker/testing_model_bipedalwalker.py
 ```
-
 
 ### Explanation
 
@@ -53,82 +52,99 @@ def get_fitness(n_episodes):
 | Mean value of fitness function for BipedalWalker-v2 problem |
 
 
-##### Schema
+##### Algorithm
 
 1. Create initial population of neural networks. At first the weights and biases are randomly initialized.
 2. Calculate fitness function for each individual.
 3. Weights and biases are transformed into a single vector.
 4. Selection (elitism selection or roulette wheel selection)
 5. Crossover (simple crossover or [BLX-alpha](http://www.tomaszgwiazda.com/blendX.htm))
-6. Mutation
-7. If child fitness is greater than parent fitness score the new population is updated
+6. Mutation (change value of one gen in NN from normal distribution)
+7. If children fitness is greater than parents fitness score the new population is updated
 8. Go to 2.
 
-| ![mlp-cartpole](docs/bipedalwalker/mlp.png) |
-|:---:| 
-| Architecture of neural network used in BipedalWalker-v2 problem |
+## [CarRacing-v0](https://gym.openai.com/envs/CarRacing-v0/)
+
+<table>
+  <tr>
+	  <th><i>Info</i></th>
+	  <th><i>Architecture of neural network</i></th>
+  </tr>
+  <tr>
+	  <td><b>Observation space</b>:<br><br>- RGB 96x96 pixels frame (with all the control bar on the bottom of the screen)</td>
+    <td rowspan="4"><img src="docs/carracing/12-17-2019_12-14_NN=ConvNetTorchIndividal_POPSIZE=50_GEN=2000_PMUTATION_0.4_PCROSSOVER_0.8_I=1495_SCORE=426_neural_network.svg" height="650"/></td>
+  </tr>
+  <tr>
+	  <td><b>Actions</b>(continues):<br><br>- sterring angle (s = [-1, 1])<br>- throttle (t = [0, 1])<br>- brake (b = [0, 1])</td>
+  </tr>
+  <tr>
+	  <td><b>Reward</b><br><br>- -0.1 every frame and +1000/N for every track tile visited, 
+		    <br>   where N is the total number of tiles in track<br></td>
+  </tr>
+  <tr>
+	  <td><b>Genetic algorithm parameters</b><br>- population size: 50 <br>- generation: 2000 <br>- mutation rate: 0.4 <br>- crossover rate: 0.8</td>
+  </tr>
+</table>
+
 
 ## [BipedalWalker-v2](https://github.com/openai/gym/wiki/BipedalWalker-v2)
-
-**Environment** (continuous)
- - 24 observations (hull_angle, vel_x, vel_y and many more)
-
-**Actions** (continues):
- - Hip_1 and Hip_2 (Torque / Velocity)
- - Knee_1 and Knee_2 (Torque / Velocity)
- 
-**Reward** is given for moving forward, total 300+ points up to the far end. 
-If the robot falls, it gets -100
-
-**Episode Termination**
-The episode ends when the robot body touches ground or the robot reaches far right side of the environment
-
-**Neural network architecture**: simple MLP
- - Input size: 10
- - One hidden layer, size: 24
- - Second hidden layer, size: 12
- - Output layer with `tanh` activation function, size: 4
- 
-**Genetic algorithm parameters**:
- - population size: 50
- - generation: 2000
- - mutation rate: 0.3
- - crossover rate: 0.9
-
-
+              
+<table>
+  <tr>
+	  <th><i>Info</i></th>
+	  <th><i>Architecture of neural network</i></th>
+  </tr>
+  <tr>
+    <td><b>Environment</b> (continuous) <br><br>- 24 observations (hull_angle, vel_x, vel_y and many more)</td>
+    <td rowspan="5"><img src="docs/bipedalwalker/12-05-2019_10-01_NN=MLPTorchIndividual_POPSIZE=30_GEN=6000_PMUTATION_0.6_PCROSSOVER_0.85_neural_network.svg" height="700"/></td>
+  </tr>
+  <tr>
+    <td><b>Actions</b> (continues): <br><br>- Hip_1 and Hip_2 (Torque / Velocity) <br>- Knee_1 and Knee_2 (Torque / Velocity)</td>
+  </tr>
+  <tr>
+	  <td><b>A reward</b> is given for moving forward, total of 300+ points up to the far end. <br>If the robot falls, it gets -100</td>
+  </tr>
+  <tr>
+    <td><b>Episode Termination</b><br> The episode ends when the robot body touches ground or <br> the robot reaches the far right side of the environment</td>
+  </tr>
+  <tr>
+    <td><b>Genetic algorithm parameters</b><br>- population size: 50 <br>- generation: 2000 <br>- mutation rate: 0.3 <br>- crossover rate: 0.9<br></td>
+  </tr>
+</table>
+	      
 ## [Cartpole-v0](https://github.com/openai/gym/wiki/CartPole-v0)
 
-**Environment** (continuous)
- - 4 observations (Cart Position and Velocity, Pole Angle and Velocity at Tip)
+<table>
+  <tr>
+	  <th><i>Info</i></th>
+	  <th><i>Architecture of neural network</i></th>
+  </tr>
+  <tr>
+	  <td><b>Environment</b> (continuous)<br><br> - 4 observations (Cart Position and Velocity, Pole Angle and Velocity at Tip)</td>
+    <td rowspan="5"> <img src="docs/cartpole/09-09-2019_17-37_POPSIZE=100_GEN=20_PMUTATION_0.4_PCROSSOVER_0.9_neural_network.svg" width="120%" /> </td>
+  </tr>
+  <tr>
+	  <td><b>Actions</b> (discrete):<br><br> - Push a cart to the left or right</td>
+  </tr>
+  <tr>
+	  <td><b>Reward</b> <br><br>- 1 for every step taken, including the termination step<br></td>
+  </tr>
+  <tr>
+	  <td><b>Episode Termination</b><br><br> - Pole Angle is more than ±12°<br> - Cart Position is more than ±2.4 (center of the cart reaches the edge of the display)<br> - Episode length is greater than 200</td>
+  </tr>
+  <tr>
+	  <td><b>Genetic algorithm parameters</b><br> - population size: 100<br> - generation: 20<br> - mutation rate: 0.4<br> - crossover rate: 0.9<br></td>
+  </tr>
+</table>
 
-**Actions** (discrete):
- - Push cart to the left or right
 
-**Reward**: 1 for every step taken, including the termination step
-
-**Episode Termination**
- - Pole Angle is more than ±12°
- - Cart Position is more than ±2.4 (center of the cart reaches the edge of the display)
- - Episode length is greater than 200
-
-**Neural network architecture**: simple MLP
- - Input size: 4
- - One hidden layer, size: 2
- - Output layer with Softmax activation function, size: 1
- 
-**Genetic algorithm parameters**:
- - population size: 100
- - generation: 20
- - mutation rate: 0.4
- - crossover rate: 0.9
- 
 ***
 
-Run on [**Spell**](https://web.spell.run/robjan/)
+### Run on [**Spell**](https://web.spell.run/robjan/)
 ```shell script
 spell run "python scripts/bipedalwalker.py" --pip-req requirements.txt
 ```
-For car racing (need to open virual display server)
+For _Carracing_ (need to open virtual display server)
 ```shell script
 spell run --apt python-dev --apt cmake --apt zlib1g-dev --apt libjpeg-dev \
 	--apt xvfb --apt ffmpeg --apt xorg-dev --apt python-opengl --apt libboost-all-dev \
