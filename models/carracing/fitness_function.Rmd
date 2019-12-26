@@ -1,0 +1,38 @@
+---
+title: "fitness_function"
+author: "Robert Jankowski"
+date: "12/26/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+```{r}
+data <- read.csv("logs.csv", header = F)
+colnames(data) <- c("t", "n", "mean", "min", "max")
+data$t <- as.POSIXct(data$t, format = "%m-%d-%Y_%H-%M", origin="1970-01-01", tz="GMT")
+head(data)
+```
+
+```{r, info = F, message=F}
+p <- ggplot(data) + 
+  geom_point(aes(t, mean, color = "mean"), alpha = 0.1) +
+  geom_point(aes(t, min, color = "min"), alpha = 0.1) +
+  geom_point(aes(t, max, color = "max"), alpha = 0.1) +
+  geom_smooth(aes(t, mean, color = "mean")) +
+  geom_smooth(aes(t, min, color = "min")) +
+  geom_smooth(aes(t, max, color = "max")) + 
+  theme_light() +
+  labs(x = "", y = "fitness score") + 
+  scale_color_discrete(labels = c("mean", "min", "max")) +
+  theme(legend.position = "top", 
+        legend.title = element_blank(), legend.text = element_text(size = 13), 
+        text = element_text(size = 14))
+
+# ggsave("fitness_function.svg", p, width = 12, height = 8)
+p
+```
+
