@@ -24,7 +24,7 @@ if __name__ == '__main__':
         if done:
             break
 
-    #torch.save(nn, "12-17-2019_12-14_NN=ConvNetTorchIndividal_POPSIZE=50_GEN=2000_PMUTATION_0"
+    # torch.save(nn, "12-17-2019_12-14_NN=ConvNetTorchIndividal_POPSIZE=50_GEN=2000_PMUTATION_0"
     #        ".4_PCROSSOVER_0.8_I=1495_SCORE=426.3157894736778.pt")
 
     env.close()

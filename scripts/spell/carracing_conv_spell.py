@@ -152,7 +152,7 @@ class ConvNetTorchIndividal(Individual):
             action = self.nn.forward(obs)
             action = action.detach().numpy()
             obs, reward, done, _ = env.step(action)
-            fitness += reward
+            fitness += np.clip(reward, a_max=1)
             if done:
                 break
         return fitness, self.nn.get_weights_biases()
@@ -270,10 +270,10 @@ if __name__ == '__main__':
     env = gym.make('CarRacing-v0')
     env.seed(123)
 
-    POPULATION_SIZE = 50
+    POPULATION_SIZE = 40
     MAX_GENERATION = 2000
-    MUTATION_RATE = 0.4
-    CROSSOVER_RATE = 0.8
+    MUTATION_RATE = 0.6
+    CROSSOVER_RATE = 0.9
 
     p = Population(ConvNetTorchIndividal(None, None, None), POPULATION_SIZE, MAX_GENERATION,
                    MUTATION_RATE, CROSSOVER_RATE)
