@@ -23,7 +23,7 @@ class Population:
         for i in range(self.max_generation):
             [p.calculate_fitness(env) for p in self.old_population]
 
-            self.new_population = []
+            self.new_population = [None for _ in range(self.pop_size)]
             run_generation(env,
                            self.old_population,
                            self.new_population,

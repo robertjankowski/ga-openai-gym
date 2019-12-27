@@ -29,7 +29,7 @@ class MLPIndividual(Individual):
         return fitness, self.nn.get_weights_biases()
 
 
-def generation(env, old_population, new_population, p_mutation, p_crossover):
+def generation(env, old_population, new_population, p_mutation, p_crossover, p_inversion=None):
     for i in range(0, len(old_population) - 1, 2):
         # Selection
         parent1 = roulette_wheel_selection(old_population)
@@ -77,7 +77,7 @@ if __name__ == '__main__':
     OUTPUT_SIZE = 1
 
     p = Population(MLPIndividual(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE),
-                   POPULATION_SIZE, MAX_GENERATION, MUTATION_RATE, CROSSOVER_RATE)
-    p.run(env, generation, verbose=True, output_folder='../../models/cartpole')
+                   POPULATION_SIZE, MAX_GENERATION, MUTATION_RATE, CROSSOVER_RATE, 0)
+    p.run(env, generation, verbose=True, output_folder='../../models/cartpole', log=True)
 
     env.close()

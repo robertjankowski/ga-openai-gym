@@ -152,7 +152,7 @@ class ConvNetTorchIndividal(Individual):
             action = self.nn.forward(obs)
             action = action.detach().numpy()
             obs, reward, done, _ = env.step(action)
-            fitness += np.clip(reward, a_max=1)
+            fitness += np.clip(reward, a_max=1, a_min=reward)
             if done:
                 break
         return fitness, self.nn.get_weights_biases()
