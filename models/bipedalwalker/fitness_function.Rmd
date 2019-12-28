@@ -11,17 +11,25 @@ library(ggplot2)
 ```
 
 ```{r}
-data <- read.csv("09-30-2019_logs.csv", header = F)
+data <- read.csv("logs_run_92.csv", header = F)
 colnames(data) <- c("t", "n", "mean", "min", "max")
 data$t <- as.POSIXct(data$t, format = "%m-%d-%Y_%H-%M", origin="1970-01-01", tz="GMT")
 head(data)
 ```
 
+```{r}
+
+```
+
+
 ```{r, info = F, message=F}
 p <- ggplot(data) + 
-  geom_line(aes(n, mean, color = "mean"), alpha=0.4) +
-  geom_line(aes(n, min, color = "min"), alpha=0.4) +
-  geom_line(aes(n, max, color = "max"), alpha=0.4) +
+  geom_point(aes(n, mean, color = "mean"), alpha=0.1) +
+  geom_point(aes(n, min, color = "min"), alpha=0.1) +
+  geom_point(aes(n, max, color = "max"), alpha=0.1) +
+  geom_smooth(aes(n, mean, color = "mean"), alpha=0.4) +
+  geom_smooth(aes(n, min, color = "min"), alpha=0.4) +
+  geom_smooth(aes(n, max, color = "max"), alpha=0.4) +
   theme_light() +
   labs(x = "generation", y = "fitness score") + 
   scale_color_discrete(labels = c("max", "mean", "min")) +

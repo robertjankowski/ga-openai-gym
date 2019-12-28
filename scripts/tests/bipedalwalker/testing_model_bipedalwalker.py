@@ -1,5 +1,4 @@
 import gym
-import numpy as np
 import torch
 
 from nn.mlp import MLP, MLPTorch
@@ -47,9 +46,9 @@ def test_rnn(is_reduced=False):
 
 
 if __name__ == '__main__':
-    env = gym.make('BipedalWalkerHardcore-v2')
+    env = gym.make('BipedalWalker-v2')
+    env = gym.wrappers.Monitor(env, 'bipedalwalker', video_callable=lambda episode_id: True, force=True)
     env.seed(123)
-    # env = gym.wrappers.Monitor(env, 'cartpole', video_callable=lambda episode_id: True, force=True)
     observation = env.reset()
 
     INPUT_SIZE = 24
@@ -57,8 +56,8 @@ if __name__ == '__main__':
     OUTPUT_SIZE = 4
 
     rnn = RNN(10, 24, 12, OUTPUT_SIZE)
-    rnn.load('../../../models/bipedalwalker/09-23-2019_07-09_NN=RNNIndividual_POPSIZE=50_GEN=2000_PMUTATION_0'
-             '.3_PCROSSOVER_0.8.npy')
+    # rnn.load('../../../models/bipedalwalker/09-23-2019_07-09_NN=RNNIndividual_POPSIZE=50_GEN=2000_PMUTATION_0'
+    #        '.3_PCROSSOVER_0.8.npy')
     # test_rnn()
 
     mlp = MLP(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)
@@ -71,8 +70,8 @@ if __name__ == '__main__':
     # Model 09-26-2019 NN: 5  - 16 - 12 - 4
     # Model 09-30-2019 NN: 10 - 16 - 12 - 4
     mlp_torch = MLPTorch(10, 16, 12, OUTPUT_SIZE)
-    mlp_torch.load("../../../models/bipedalwalker/12-05-2019_10-01_NN=MLPTorchIndividual_POPSIZE=30_GEN"
-                   "=6000_PMUTATION_0.6_PCROSSOVER_0.85_I=6000_SCORE=.npy")
+    mlp_torch.load("../../../models/bipedalwalker/10-21-2019_02-57_NN=MLPTorchIndividual_POPSIZE=30_GEN"
+                   "=6000_PMUTATION_0.6_PCROSSOVER_0.85_I=2432_SCORE=135.05759182155143.npy")
     test_mlp_torch(input_size=10, is_reduced=True)
 
     env.close()
