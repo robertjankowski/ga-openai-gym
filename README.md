@@ -1,4 +1,4 @@
-## Using genetic algorithms to train neural network in OpenAI gym environment. 
+## Usage of genetic algorithms to train a neural network in the multiple OpenAI gym environments. 
 ***
 | Random Carracing | GA Carracing |
 | ------------- |:-------------:|
