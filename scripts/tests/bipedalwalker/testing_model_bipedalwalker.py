@@ -47,7 +47,7 @@ def test_rnn(is_reduced=False):
 
 if __name__ == '__main__':
     env = gym.make('BipedalWalker-v2')
-    env = gym.wrappers.Monitor(env, 'bipedalwalker', video_callable=lambda episode_id: True, force=True)
+    # env = gym.wrappers.Monitor(env, 'bipedalwalker', video_callable=lambda episode_id: True, force=True)
     env.seed(123)
     observation = env.reset()
 

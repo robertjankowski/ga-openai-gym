@@ -1,4 +1,5 @@
-torch
+slimevolleygym
+opencv-python
 astroid==2.2.5
 autopep8==1.4.3
 box2d-py==2.3.8
