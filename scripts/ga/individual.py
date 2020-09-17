@@ -64,12 +64,12 @@ def mutation_gen(child_weights_biases: np.array, p_mutation):
             child_weights_biases[i] = np.random.uniform(-100, 100)
 
 
-def mutation(parent_weights_biases: np.array, p: float):
+def mutation(parent_weights_biases: np.array, p: float, scale=10):
     child_weight_biases = np.copy(parent_weights_biases)
     if np.random.rand() < p:
         position = np.random.randint(0, parent_weights_biases.shape[0])
         n = np.random.normal(np.mean(child_weight_biases), np.std(child_weight_biases))
-        child_weight_biases[position] = n + np.random.randint(-10, 10)
+        child_weight_biases[position] = n + np.random.randint(-scale, scale)
     return child_weight_biases
 
 
