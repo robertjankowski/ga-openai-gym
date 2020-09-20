@@ -124,3 +124,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+models/bipedalwalker/generated_data/*

@@ -5,11 +5,13 @@
 | ------------- |:-------------:|
 | ![ga-carracing](docs/carracing/carracing_example_random.gif) | ![ga-carracing](docs/carracing/carracing_example_gen=1495_C=0.8_M=0.4_P=50_S=426.gif) |
 
- | Random BipedalWalker-v2 | GA BipedalWalker-v2 | 
-| ------------- |:-------------:|
-| ![mlp_bipedal](docs/bipedalwalker/bipedalwalker_random.gif) | <img src="docs/bipedalwalker/bipedalwalker_run_24_20_12_12_4.gif" width="600"> |
+ | Random BipedalWalker-v2 | GA BipedalWalker-v2 | Small BipedalWalker-v2<span style="color:blue">*</span> | 
+| ------------- |:-------------:| :-------------: |
+| ![mlp_bipedal](docs/bipedalwalker/bipedalwalker_random.gif) | <img src="docs/bipedalwalker/bipedalwalker_run_24_20_12_12_4.gif" width="600"> | <img src="docs/bipedalwalker/bipedalwalker_small_4_4_4.gif" width="600"> |
 
- | Random Cartpole-v0 | GA Cartpole-v0 | 
+<span style="color:blue">*</span> -- see more [here](#pruning-trained-neural-network)
+
+| Random Cartpole-v0 | GA Cartpole-v0 | 
 | ------------- |:-------------:|
 | ![cartpole-random](docs/cartpole/cartpole_random.gif) | ![cartpole-random](docs/cartpole/cartpole_nn.gif) |
 
@@ -18,14 +20,15 @@
 | ![slimevolley](docs/slimevolley/slimevolley_nn.gif) |
 | The [Slime Volleyball environment](https://github.com/hardmaru/slimevolleygym/) turned out to be quite hard for proposed method. The interesting fact to observe is that trained agent (on the right) tries to imitate movement of its opponent.| 
 
+
 Table of contents
 ==================
 
 * [Overview](#overview)
 * [Usage](#usage)
 * [Details](#details)
+* [Extra experiments](#extra-experiments)
 * [Environments](#environments)
-
 
 Overview
 ========
@@ -82,7 +85,7 @@ The vast number of genetic algorithms are constructed using 3 major operations: 
 
 1. **Setup** -- As in many various generic algorithms at the beginning the population of individuals (neural networks) are created. The weights and biases of them are initialized randomly.
 2. **Selection** -- For each individual the fitness function are calculated. I tested both the ranking and the roulette wheel selection and the former method worked significantly better. As the result, the two individuals are selected with the highest fitness score.
-3. **Crossover** -- The 'parents' (two neural networks) and decomposed into the flat vectors and then the simple or the [BLX-alpha](http://www.tomaszgwiazda.com/blendX.htm) crossover is
+3. **Crossover** -- The 'parents' (two neural networks) are decomposed into the flat vectors and then the simple or the [BLX-alpha](http://www.tomaszgwiazda.com/blendX.htm) crossover is
    performed. 
 4. **Mutation** -- Each made child has a chance to mutate i.e., alter the weights or biases. I found out that bigger mutation (uniform distribution with large range) is vital to achieve greater results.
 5. **Repeat** -- If the sum of fitness score of the created children is greater than theirs parents, the children go to the next generation. The process starts from the beginning
@@ -112,6 +115,15 @@ def compute_fitness_function(env, model, n_episodes: int):
 
 The fitness function in this example is non monotonic and the variance for the generation above 1000 is sizeable. 
 These situations were common during training.
+
+Extra experiments
+=================
+
+## Model compression and knowledge distillation
+
+### Pruning trained neural network
+
+_Can we reduce the sizes of the neural network while keeping good performance in the particular environment?_ The first step was to gather the training data for the smaller (student) model i.e. I took the best model (from BipedalWalker environment) and ran it multiple times whilst saving both the features (observations from environment) and the labels (models' actions). The initial neural model architecture was shrinkage significantly, from `24-20-12-12-4` to `4-4-4`, interestingly, preserving the ability to complete the task. 
 
 
 Environments
