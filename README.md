@@ -28,6 +28,8 @@ Table of contents
 * [Usage](#usage)
 * [Details](#details)
 * [Extra experiments](#extra-experiments)
+  * [Model compression and knowledge distillation](#model-compression-and-knowledge-distillation)
+  * [Multitask learning](#multitask-learning)
 * [Environments](#environments)
 
 Overview
@@ -124,6 +126,33 @@ Extra experiments
 ### Pruning trained neural network
 
 _Can we reduce the sizes of the neural network while keeping good performance in the particular environment?_ The first step was to gather the training data for the smaller (student) model i.e. I took the best model (from BipedalWalker environment) and ran it multiple times whilst saving both the features (observations from environment) and the labels (models' actions). The initial neural model architecture was shrinkage significantly, from `24-20-12-12-4` to `4-4-4`, interestingly, preserving the ability to complete the task. 
+
+## Multitask learning
+
+| ![multitask_learning](docs/multitask_learning/multitask_learning.jpg) | ![multitask_learning_example](docs/multitask_learning/multitask_learning_example_architecture.png) | 
+| :------------------------------------------------: | :------------------------------: |
+| Example scheme for training the agent in two environments  | Example model architecture for multitask learning | 
+
+I used _Hard parameters sharing_ approach to train both the CartPole and BipedalWalker agents. The figures above depict how the neural model architecture looks like.
+
+I also checked how the trained model will behave, if I fed it with different input values, that is:
+
+1. Both agents receive correct observations from environments
+2. CartPole agent receives random noise from uniform distribution, while BipedalWalker agent receives correct observations
+3. CartPole agent receives correct observations, while BipedalWalker agent receives random noise from uniform distribution
+4. Both agents receive random noise from uniform distribution.
+
+The results are shown below. To conclude, the both model inputs are important, but not equally. It is clearly visible that for 2. option, despite noised observations in CartPole, the BipedalWalker agent performs reasonable well.
+
+| ![both_correct_obs](docs/multitask_learning/both_correct_bipedalwalker.gif) | ![both_correct_obs](docs/multitask_learning/both_correct_cartpole.gif) | 
+| :-------------------------------------------------------------------------: | :--------------------------------------------------------------------: |
+| 1. BipedalWalker                   | 1. CartPole                                                                     |
+| ![first_noise_second_correct](docs/multitask_learning/first_noise_second_correct_bipedalwalker.gif) | ![first_noise_second_correct](docs/multitask_learning/first_noise_second_correct_cartpole.gif) | 
+| 2. BipedalWalker |2. CartPole |
+| ![first_correct_second_noise](docs/multitask_learning/first_correct_second_noise_bipedalwalker.gif) | ![first_correct_second_noise](docs/multitask_learning/first_correct_second_noise_cartpole.gif) | 
+| 3. BipedalWalker | 3.CartPole |
+| ![both_noise](docs/multitask_learning/both_noise_bipedalwalker.gif) | ![both_noise](docs/multitask_learning/both_noise_cartpole.gif) | 
+| 4. BipedalWalker | 4. CartPole | 
 
 
 Environments
